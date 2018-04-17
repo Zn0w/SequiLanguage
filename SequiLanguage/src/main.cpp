@@ -62,7 +62,8 @@ int main()
 		{
 			std::string element = instruction.at(j);
 			
-			// Instruction handling
+			// Instructions handling
+
 			if (element == "print_plain")
 			{
 				std::string next_element = instruction.at(j + 1);
@@ -70,6 +71,12 @@ int main()
 					std::cout << std::endl;
 				else
 					std::cout << next_element;
+			}
+			else if (element == "goto")
+			{
+				std::string next_element = instruction.at(j + 1);
+				i = std::stoi(next_element) - 1; // -1 because i will be incremented at the beginning of the next iteration
+				break;
 			}
 		}
 	}

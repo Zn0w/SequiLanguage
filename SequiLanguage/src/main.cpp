@@ -4,6 +4,8 @@
 #include <vector>
 #include <map>
 
+// Source: D:\dev\SequiLanguage\SequiLanguage\test\example1.txt
+
 int main()
 {
 	std::string sourcename;
@@ -36,11 +38,18 @@ int main()
 				elements.push_back(temp);
 				temp = "";
 			}
+			else if (line.at(i) == '"')
+			{
+				line.erase(0, i + 1);
+				temp = line;
+				break;
+			}
 			else
 				temp += line.at(i);
 		}
 
-		elements.push_back(temp);
+		if (temp != "")
+			elements.push_back(temp);
 
 		source.emplace(line_counter, elements);
 	}
@@ -54,10 +63,12 @@ int main()
 			std::string element = instruction.at(j);
 			
 			// Instruction handling
-			if (element == "print")
+			if (element == "print_plain")
 			{
 				std::string next_element = instruction.at(j + 1);
-				if (next_element.at(0) == '"' && next_element.at(next_element.size() - 1) == '"')
+				if (next_element == "/#ln")
+					std::cout << std::endl;
+				else
 					std::cout << next_element;
 			}
 		}

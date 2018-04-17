@@ -1,1 +1,4 @@
-print "HelloWorld!"
+print_plain "Hello World!
+print_plain "/#ln
+print_plain "This is a print_plain test
+print_plain "/#ln

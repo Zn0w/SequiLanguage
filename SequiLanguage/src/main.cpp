@@ -32,6 +32,10 @@ int main()
 
 	std::map<std::string, int> labels;
 
+	// Global variables pool
+
+	std::map<std::string, void*> globals;
+
 	for (int i = 1; i <= source.size(); i++)
 	{
 		std::vector<std::string> instruction = source.at(i);

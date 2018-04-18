@@ -4,12 +4,13 @@
 #include <vector>
 #include <map>
 
+std::map<int, std::vector<std::string>> get_source(std::ifstream*);
+
 // Source: D:\dev\SequiLanguage\SequiLanguage\test\example1.txt
 
 int main()
 {
 	std::string sourcename;
-	std::string line;
 	
 	std::cout << "File to interpret: " << std::endl;
 	std::cout << "                   $ ";
@@ -19,43 +20,13 @@ int main()
 	std::ifstream file_reader(sourcename);
 
 	if (!file_reader.is_open())
+	{
 		std::cout << "Failed to read given file." << std::endl;
-
-	std::map<int, std::vector<std::string>> source;
-
-	int line_counter = 0;
-	while (getline(file_reader, line))
-	{	
-		line_counter++;
-		
-		std::vector<std::string> elements;
-		std::string temp = "";
-
-		for (int i = 0; i < line.size(); i++)
-		{
-			if (line.at(i) == ' ')
-			{
-				elements.push_back(temp);
-				temp = "";
-			}
-			else if (line.at(i) == '"')
-			{
-				line.erase(0, i + 1);
-				temp = line;
-				break;
-			}
-			else
-				temp += line.at(i);
-		}
-
-		if (temp != "")
-			elements.push_back(temp);
-
-		if (line == "")
-			line_counter--;
-		else
-			source.emplace(line_counter, elements);
+		system("pause");
+		return 1;
 	}
+
+	std::map<int, std::vector<std::string>> source = get_source(&file_reader);
 
 	for (int i = 1; i <= source.size(); i++)
 	{
@@ -87,4 +58,46 @@ int main()
 	system("pause");
 	
 	return 0;
+}
+
+std::map<int, std::vector<std::string>> get_source(std::ifstream* file_reader)
+{
+	std::map<int, std::vector<std::string>> source;
+	std::string line;
+	int line_counter = 0;
+
+	while (getline(*file_reader, line))
+	{
+		line_counter++;
+
+		std::vector<std::string> elements;
+		std::string temp = "";
+
+		for (int i = 0; i < line.size(); i++)
+		{
+			if (line.at(i) == ' ')
+			{
+				elements.push_back(temp);
+				temp = "";
+			}
+			else if (line.at(i) == '"')
+			{
+				line.erase(0, i + 1);
+				temp = line;
+				break;
+			}
+			else
+				temp += line.at(i);
+		}
+
+		if (temp != "")
+			elements.push_back(temp);
+
+		if (line == "")
+			line_counter--;
+		else
+			source.emplace(line_counter, elements);
+	}
+
+	return source;
 }

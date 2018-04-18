@@ -28,29 +28,43 @@ int main()
 
 	std::map<int, std::vector<std::string>> source = get_source(&file_reader);
 
+	// Label pool
+
+	std::map<std::string, int> labels;
+
 	for (int i = 1; i <= source.size(); i++)
 	{
 		std::vector<std::string> instruction = source.at(i);
 
 		for (int j = 0; j < instruction.size(); j++)
 		{
-			std::string element = instruction.at(j);
+			std::string key = instruction.at(j);
 			
 			// Instructions handling
 
-			if (element == "print_plain")
+			if (key == "print_plain")
 			{
-				std::string next_element = instruction.at(j + 1);
-				if (next_element == "/#ln")
+				std::string text = instruction.at(j + 1);
+				if (text == "/#ln")
 					std::cout << std::endl;
 				else
-					std::cout << next_element;
+					std::cout << text;
 			}
-			else if (element == "goto")
+			else if (key == "goto")
 			{
-				std::string next_element = instruction.at(j + 1);
-				i = std::stoi(next_element) - 1; // -1 because i will be incremented at the beginning of the next iteration
+				std::string label_name = instruction.at(j + 1);
+				int next_line = labels.at(label_name);
+				i = next_line;
 				break;
+			}
+			else if (key == "var")
+			{
+
+			}
+			else if (key == "label")
+			{
+				std::string label_name = instruction.at();
+				labels.emplace();
 			}
 		}
 	}

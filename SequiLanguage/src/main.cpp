@@ -25,9 +25,9 @@ int main()
 
 	int line_counter = 0;
 	while (getline(file_reader, line))
-	{
+	{	
 		line_counter++;
-
+		
 		std::vector<std::string> elements;
 		std::string temp = "";
 
@@ -51,7 +51,10 @@ int main()
 		if (temp != "")
 			elements.push_back(temp);
 
-		source.emplace(line_counter, elements);
+		if (line == "")
+			line_counter--;
+		else
+			source.emplace(line_counter, elements);
 	}
 
 	for (int i = 1; i <= source.size(); i++)

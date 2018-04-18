@@ -36,36 +36,32 @@ int main()
 	{
 		std::vector<std::string> instruction = source.at(i);
 
-		for (int j = 0; j < instruction.size(); j++)
+		std::string key = instruction.at(0);
+		
+		// Instructions handling
+		
+		if (key == "print_plain")
 		{
-			std::string key = instruction.at(j);
-			
-			// Instructions handling
+			std::string text = instruction.at(1);
+			if (text == "/#ln")
+				std::cout << std::endl;
+			else
+				std::cout << text;
+		}
+		else if (key == "goto")
+		{
+			std::string label_name = instruction.at(1);
+			int next_line = labels.at(label_name);
+			i = next_line;
+		}
+		else if (key == "var")
+		{
 
-			if (key == "print_plain")
-			{
-				std::string text = instruction.at(j + 1);
-				if (text == "/#ln")
-					std::cout << std::endl;
-				else
-					std::cout << text;
-			}
-			else if (key == "goto")
-			{
-				std::string label_name = instruction.at(j + 1);
-				int next_line = labels.at(label_name);
-				i = next_line;
-				break;
-			}
-			else if (key == "var")
-			{
-
-			}
-			else if (key == "label")
-			{
-				std::string label_name = instruction.at();
-				labels.emplace();
-			}
+		}
+		else if (key == "label")
+		{
+			std::string label_name = instruction.at(1);
+			labels.emplace(label_name, i);
 		}
 	}
 

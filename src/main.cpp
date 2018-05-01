@@ -4,6 +4,8 @@
 #include <vector>
 #include <map>
 
+#include "variable.h"
+
 std::map<int, std::vector<std::string>> get_source(std::ifstream*);
 
 // Source: D:\dev\SequiLanguage\SequiLanguage\test\example1.txt
@@ -34,7 +36,7 @@ int main()
 
 	// Global variables pool
 
-	std::map<std::string, void*> globals;
+	std::vector<Variable<void*>> globals;
 
 	for (int i = 1; i <= source.size(); i++)
 	{
@@ -60,7 +62,12 @@ int main()
 		}
 		else if (key == "var")
 		{
+			std::string var_name = instruction.at(1);
+			std::string var_type = instruction.at(2);
+			std::string var_value = instruction.at(3);
 
+			if (var_type == "integer")
+				globals.push_back(Variable<int>(var_name));
 		}
 		else if (key == "label")
 		{

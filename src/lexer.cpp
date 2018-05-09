@@ -1,6 +1,6 @@
 #include "lexer.h"
 
-void sayHi()
+void lexer()
 {
-	std::cout << "Hello!" << std::endl;
+	
 }

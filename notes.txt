@@ -1,0 +1,4 @@
+Some notes taken during the development:
+	
+	For some reason argv[...] does not compare with other strings with '=='
+	Instead, use strcmp(str1, str2) from "string.h", which returns zero if strings are equal

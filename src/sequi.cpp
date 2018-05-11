@@ -1,6 +1,7 @@
 #include "lexer.h"
 
 #include <iostream>
+#include <string.h>
 
 int main(int argc, char** argv)
 {
@@ -15,12 +16,10 @@ int main(int argc, char** argv)
 	}
 	else if (argc == 2)
 	{
-		std::cout << "argv: " << argv[1] << std::endl;
-		if ((const char*)argv[1] == "version")
-			std::cout << "The itnrepreter's version: 0.0.1 (development)" << std::endl;
+		if (strcmp(argv[1], "version") == 0)
+			std::cout << "The itnrepreter's version: 0.0.1d (in development)" << std::endl;
 		else
 			filename = argv[1];
-		std::cout << filename << std::endl;
 	}
 	else
 		std::cout << "Too many arguments." << std::endl;

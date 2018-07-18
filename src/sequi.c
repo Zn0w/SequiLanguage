@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "lexer/lexer.h"
+
 int main(int argc, char** argv)
 {
 	const char* filename;
@@ -15,12 +17,27 @@ int main(int argc, char** argv)
 	else if (argc == 2)
 	{
 		if (strcmp(argv[1], "version") == 0)
+		{
 			printf("The current sequi's version: 0.0.1d (in development)\n");
+			return 0;
+		}
 		else
 			filename = argv[1];
 	}
 	else
+	{
 		printf("Too many arguments.\n");
+		return -1;
+	}
+
+	char* source = getSource(filename);
+	if (source == "file_read_fail")
+	{
+		printf("Failed to read file with path '%s'.\n", filename);
+		return -1;
+	}
+
+	analyse(source);
 	
 	return 0;
 }

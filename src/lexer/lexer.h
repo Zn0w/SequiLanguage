@@ -2,6 +2,8 @@
 #define LEXER_H
 
 
+#include <stdio.h>
+
 #include "../vendor/stb_stretchy_buffer.h"
 
 char* getSource(const char* filename);

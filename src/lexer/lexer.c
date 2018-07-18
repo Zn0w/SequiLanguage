@@ -1,5 +1,15 @@
 #include "lexer.h"
 
+static char* concat(char* str1, char* str2)
+{
+	char* new_str;
+	new_str = malloc(strlen(str1) + strlen(str2) + 1);
+	strcpy(new_str, str1);
+	strcat(new_str, str2);
+
+	return new_str;
+}
+
 char* getSource(const char* filename)
 {
 	char* source = NULL;
@@ -22,8 +32,12 @@ char* getSource(const char* filename)
 
 void analyse(char* source)
 {
+	char* token = "";
+
 	for (int i = 0; i < sb_count(source); i++)
 	{
-		printf("%c", source[i]);
+		char* c = source[i];
+		token = concat(token, c);
+		printf("%s\n", token);
 	}
 }

@@ -7,18 +7,23 @@ char* getSource(const char* filename)
 	FILE* file;
 	file = fopen(filename, "r");
 	if (!file)
-		source = "file_read_fail";
+		return source;
 	
 	char c;
 	while ((c = fgetc(file)) != EOF)
 	{
-		printf("%c\n", c);
+		sb_push(source, c);
 	}
+
+	fclose(file);
 
 	return source;
 }
 
 void analyse(char* source)
 {
-
+	for (int i = 0; i < sb_count(source); i++)
+	{
+		printf("%c", source[i]);
+	}
 }

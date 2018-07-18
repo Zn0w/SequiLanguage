@@ -31,7 +31,7 @@ int main(int argc, char** argv)
 	}
 
 	char* source = getSource(filename);
-	if (source == "file_read_fail")
+	if (source == NULL)
 	{
 		printf("Failed to read file with path '%s'.\n", filename);
 		return -1;

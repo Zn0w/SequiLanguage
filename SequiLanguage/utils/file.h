@@ -9,6 +9,10 @@
 std::string read_file(const char* filepath)
 {
 	FILE* file = fopen(filepath, "rt");		// rt stands for 'read text'
+	
+	if (file == NULL)
+		return "";
+	
 	fseek(file, 0, SEEK_END);				// go to the end of file
 	unsigned long length = ftell(file);		// tell the amount of passed bytes
 	char* data = (char*)malloc(length + 1);	// +1 for termination character

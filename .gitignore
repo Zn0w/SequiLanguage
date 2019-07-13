@@ -4,4 +4,4 @@ obj/
 *.sln
 *.vcxproj
 *.filters
-*.users
+*.user

@@ -13,23 +13,19 @@ std::vector<Token> lex(std::string source)
 	// split string by space
 	std::stringstream test(source);
 	std::string segment;
-	std::vector<std::string> seglist;
+	std::vector<std::string> unprocessed;
 	while (std::getline(test, segment, ' '))
 	{
-		seglist.push_back(segment);
+		unprocessed.push_back(segment);
 	}
 
 	std::vector<Token> tokens;
-	tokens.reserve(seglist.size());
+	tokens.reserve(unprocessed.size());
 	
-	std::string token = "";
-	for (int i = 0; i < source.size(); i++)
+	for (std::string token : unprocessed)
 	{
-		token += source.at(i);
-		
-		if (token == "(")
-			tokens.push_back(Token(LEFT_PAREN, ""));
-		
 
 	}
+
+	return tokens;
 }

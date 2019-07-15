@@ -4,6 +4,7 @@
 #include <string>
 #include <sstream>
 #include <vector>
+#include <cctype>
 
 #include "token.h"
 
@@ -16,18 +17,38 @@ enum LexMode
 	PRINTING
 };
 
+bool isNumber(std::string str)
+{
+	for (int i = 0; i < str.size(); i++)
+	{
+		if (!std::isdigit(str.at(i)))
+			return false;
+	}
+
+	return true;
+}
+
 std::vector<Token> lex(std::string source)
 {
 	LexMode mode = DEFAULT;
 	
-	// split string by space
-	std::stringstream test(source);
-	std::string segment;
+	// split string by space and new line
 	std::vector<std::string> unprocessed;
-	while (std::getline(test, segment, ' '))
+	std::string word = "";
+	for (int i = 0; i < source.size(); i++)
 	{
-		unprocessed.push_back(segment);
+		if (source.at(i) == ' ' || source.at(i) == '\n' || source.at(i) == EOF)
+		{
+			if (word != "")
+				unprocessed.push_back(word);
+			word = "";
+		}
+		else
+			word += source.at(i);
 	}
+
+	if (word != "" && word != " " && word != "\n")
+		unprocessed.push_back(word);
 
 	std::vector<Token> tokens;
 	tokens.reserve(unprocessed.size());
@@ -124,9 +145,13 @@ std::vector<Token> lex(std::string source)
 				type = RETURN;
 
 			// if literal
-			else if (std::stoi(token))
+			else if (isNumber(token))
 				type = NUMBER;
 			// else check if valid identifier
+			
+			// TODO deal with undefined token
+			else
+				return tokens;
 
 			tokens.push_back(Token(type, token));
 		} break;

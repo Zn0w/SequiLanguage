@@ -23,16 +23,23 @@ int main(int argc, char** argv)
 
 	if (file_contents == "")
 	{
-		printf("File with the path %s is either empty or doesn't exist.\n");
+		printf("File with the path %s is either empty or doesn't exist.\n", argv[1]);
 		return 0;
 	}
 
 #if DEBUG == 1
 	printf("%s\n", file_contents.c_str());
-	getchar();
 #endif
 
 	std::vector<Token> tokens = lex(file_contents);
+
+#if DEBUG == 1
+	for (Token token : tokens)
+	{
+		printf("%s , ", token.lexeme.c_str());
+	}
+#endif
+
 	std::vector<Statement> statements = parse(tokens);
 
 	return 0;

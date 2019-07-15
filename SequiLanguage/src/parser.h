@@ -9,5 +9,7 @@
 
 std::vector<Statement> parse(std::vector<Token>)
 {
+	std::vector<Statement> statements;
 	
+	return statements;
 }

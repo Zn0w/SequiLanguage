@@ -19,9 +19,13 @@ enum LexMode
 
 bool isNumber(std::string str)
 {
+	bool withFraction = false;
+	
 	for (int i = 0; i < str.size(); i++)
 	{
-		if (!std::isdigit(str.at(i)))
+		if (str.at(i) == '.' && !withFraction)
+			withFraction = true;
+		else if (!std::isdigit(str.at(i)))
 			return false;
 	}
 

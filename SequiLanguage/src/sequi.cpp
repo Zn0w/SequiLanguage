@@ -28,16 +28,22 @@ int main(int argc, char** argv)
 	}
 
 #if DEBUG == 1
+	printf("Source File:\n");
+	printf("##############################DEBUG#############################\n");
 	printf("%s\n", file_contents.c_str());
+	printf("##############################DEBUG#############################\n");
 #endif
 
 	std::vector<Token> tokens = lex(file_contents);
 
 #if DEBUG == 1
+	printf("\n\nTokens:\n");
+	printf("##############################DEBUG#############################\n");
 	for (Token token : tokens)
 	{
-		printf("%s , ", token.lexeme.c_str());
+		printf("%s\n", token.lexeme.c_str());
 	}
+	printf("##############################DEBUG#############################\n");
 #endif
 
 	std::vector<Statement> statements = parse(tokens);

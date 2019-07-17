@@ -24,7 +24,8 @@ enum TokenType
 
 	VAR, FUNC, IF, ELSE, ELIF, AND, OR, NOT, PRINT, TRUE, FALSE, RETURN,
 
-	END_OF_FILE
+	END_OF_FILE,
+	UNDEF // ??
 };
 
 struct Token

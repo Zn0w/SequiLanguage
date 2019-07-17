@@ -60,7 +60,7 @@ std::vector<Token> lex(std::string source)
 
 		case DEFAULT:
 		{
-			TokenType type;
+			TokenType type = UNDEF;
 
 			// if single-character token
 			if (token.size() == 1)
@@ -108,7 +108,9 @@ std::vector<Token> lex(std::string source)
 					break;
 				case '"':
 					type = QUOTE;
-					// go to the string mode
+					mode = STRING;
+					word = "";
+					continue;
 					break;
 
 				default:
@@ -147,6 +149,12 @@ std::vector<Token> lex(std::string source)
 			// if literal
 			else if (isNumber(token))
 				type = NUMBER;
+			else if (token.at(0) == '"')
+			{
+				mode = STRING;
+				word = token.erase(0, 1);	// delete the first character from the string (token[0])
+				continue;
+			}
 			// else check if valid identifier
 			
 			// TODO deal with undefined token
@@ -158,7 +166,16 @@ std::vector<Token> lex(std::string source)
 
 		case STRING :
 		{
-			
+			word += ' ';
+
+			if (token.at(token.size() - 1) == '"')
+			{
+				word += token.erase(token.size() - 1, 1);	// delete the last character from the string
+				tokens.push_back(Token(STR, word));
+				mode = DEFAULT;
+			}
+			else
+				word += token;
 		} break;
 
 		}

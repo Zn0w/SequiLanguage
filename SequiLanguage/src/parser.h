@@ -10,6 +10,11 @@
 std::vector<Statement> parse(std::vector<Token>)
 {
 	std::vector<Statement> statements;
+
+	while (true)
+	{
+
+	}
 	
 	return statements;
 }

@@ -9,7 +9,7 @@
 #include "lex.h"
 #include "parser.h"
 
-
+/*
 int main(int argc, char** argv)
 {
 	if (argc == 1)
@@ -46,7 +46,28 @@ int main(int argc, char** argv)
 	printf("##############################DEBUG#############################\n");
 #endif
 
-	std::vector<Statement> statements = parse(tokens);
+	std::vector<Statement*> statements = parse(tokens);
+
+	return 0;
+}*/
+
+int main()
+{
+	std::vector<Token> tokens;
+	tokens.reserve(6);
+	
+	tokens.push_back(Token(IDENTIFIER, "a"));
+	tokens.push_back(Token(EQUAL, "="));
+	tokens.push_back(Token(NUMBER, "15"));
+	tokens.push_back(Token(IDENTIFIER, "length"));
+	tokens.push_back(Token(EQUAL, "="));
+	tokens.push_back(Token(NUMBER, "30.4"));
+
+	std::vector<Statement*> statements = parse(tokens);
+
+	// execute program
+	for (Statement* statement : statements)
+		statement->execute();
 
 	return 0;
 }

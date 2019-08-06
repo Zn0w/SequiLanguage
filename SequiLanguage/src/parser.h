@@ -8,8 +8,8 @@
 
 
 enum ValueType
-{
-	INTEGER, DECIMAL, STRING, CHAR
+{			// the name STRING is used in lex.h, so here STRING_VALUE is used
+	INTEGER, DECIMAL, STRING_VALUE, CHAR, BOOL
 };
 
 struct Value
@@ -46,17 +46,6 @@ struct OperationStatement : public Statement
 	}
 };
 
-struct ComparisonStatement : public Statement
-{
-	Value left, right;
-	bool result;
-
-	void execute()
-	{
-		
-	}
-};
-
 
 std::vector<Statement> parse(std::vector<Token> tokens)
 {
@@ -65,7 +54,7 @@ std::vector<Statement> parse(std::vector<Token> tokens)
 	int i = 0;
 	while (true)
 	{
-		if (tokens.at(i).type == EQUAL)
+		if (tokens.at(i).type == OPERATOR);
 	}
 	
 	return statements;

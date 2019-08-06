@@ -22,7 +22,7 @@ enum TokenType
 	//MULTIPLY_OPERATOR	// * / AND DIV MOD
 	//RELATION_OPERATOR	// > < 
 
-	EQUAL, EQUAL_EQUAL,
+	EQUAL, COMPARE, //EQUAL_EQUAL,
 	//GREATER, GREATER_EQUAL,
 	//LESS, LESS_EQUAL,
 
@@ -142,10 +142,14 @@ std::vector<Token> lex(std::string source)
 				case '-':
 				case '*':
 				case '/':
+					type = OPERATOR;
+					break;
 				case '=':
+					type = EQUAL;
+					break;
 				case '>':
 				case '<':
-					type = OPERATOR;
+					type = COMPARE;
 					break;
 				case '"':
 					type = QUOTE;
@@ -159,6 +163,10 @@ std::vector<Token> lex(std::string source)
 					break;
 				}
 			}
+
+			// if 2-symbol comparison operator
+			else if (token == "==" || token == ">=" || token == "<=" || token == "!=")
+				type = COMPARE;
 
 			// if keyword
 			else if (token == "var")

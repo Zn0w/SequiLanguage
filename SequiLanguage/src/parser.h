@@ -4,23 +4,57 @@
 #include <vector>
 
 #include "lex.h"
-#include "statement.h"
+//#include "statement.h"
 
 
-struct Node
+enum ValueType
 {
+	INTEGER, DECIMAL, STRING, CHAR
+};
+
+struct Value
+{
+	ValueType type;
+	std::string literal;
+};
+
+// Here the terminology is messed up, so in some context Statement is an expression,
+// in other a statement
+struct Statement
+{
+	virtual void execute() = 0;
+};
+
+struct AssignStatement : public Statement
+{
+	std::string name;
+	Value value;
+
+	void execute()
+	{
+		
+	}
+};
+
+struct OperationStatement : public Statement
+{
+	Value left, right, result;
 	
+	void execute()
+	{
+		
+	}
 };
 
-struct BinaryOp : public Node
+struct ComparisonStatement : public Statement
 {
-	Node* left, right;
-	Token op;
-};
+	Value left, right;
+	bool result;
 
-struct Num : public Node
-{
-	Token number_token;
+	void execute()
+	{
+		
+	}
 };
 
 
@@ -31,8 +65,7 @@ std::vector<Statement> parse(std::vector<Token> tokens)
 	int i = 0;
 	while (true)
 	{
-		if (tokens.at(i).type == LEFT_BRACE)
-			;
+		if (tokens.at(i).type == EQUAL)
 	}
 	
 	return statements;

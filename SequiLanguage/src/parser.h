@@ -41,11 +41,12 @@ struct AssignStatement : public Statement
 	}
 };
 
+// OpExpression work only with two operators, no more for now
 struct OpExpression : public Expression
 {
 	enum OpType
 	{
-		ADD, MULTIPLY, GREATER, LESS, GREATER_EQUAL, LESS_EQUAL, EQUALS, NOT_EQUALS
+		ADD, SUBTRACT, MULTIPLY, DIVIDE, GREATER, LESS, GREATER_EQUAL, LESS_EQUAL, EQUALS, NOT_EQUALS, AND, OR, NOT
 	};
 	
 	Expression* left;
@@ -54,7 +55,33 @@ struct OpExpression : public Expression
 	
 	Value evaluate()
 	{
+		Value result, l, r;
 		
+		l = left->evaluate();
+		r = right->evaluate();
+
+		switch (type)
+		{
+		case ADD:
+		{
+			if (l.type == r.type)
+				switch (l.type)
+				{
+				case INTEGER:
+					result
+					break;
+				case DECIMAL:
+					result = add_decimal(l, r);
+					break;
+				case STRING_VALUE:
+					result = add_str(l, r);
+					break;
+				case BOOL:
+					result = add_bool(l, r);
+					break;
+				}
+		}
+		}
 	}
 };
 
@@ -89,6 +116,36 @@ bool isDecimal(std::string number)
 	return false;
 }
 
+OpExpression::OpType getOpType(std::string token)
+{
+	if (token == "+")
+		return OpExpression::ADD;
+	else if (token == "/")
+		return OpExpression::SUBTRACT;
+	else if (token == "*")
+		return OpExpression::MULTIPLY;
+	else if (token == "/")
+		return OpExpression::DIVIDE;
+	else if (token == "==")
+		return OpExpression::EQUALS;
+	else if (token == ">")
+		return OpExpression::GREATER;
+	else if (token == "<")
+		return OpExpression::LESS;
+	else if (token == ">=")
+		return OpExpression::GREATER_EQUAL;
+	else if (token == "<=")
+		return OpExpression::LESS_EQUAL;
+	else if (token == "!=")
+		return OpExpression::NOT_EQUALS;
+	else if (token == "and")
+		return OpExpression::AND;
+	else if (token == "or")
+		return OpExpression::OR;
+	else if (token == "not")
+		return OpExpression::NOT;
+}
+
 // TODO: handle errors
 void error(const char*)
 {
@@ -110,24 +167,11 @@ std::vector<Statement*> parse(std::vector<Token> tokens)
 			{
 				assign_statement->name = tokens.at(i - 1).lexeme;
 
-				if (tokens.at(i + 2).type == OPERATOR | COMPARE)
+				if (tokens.at(i + 2).type == OPERATOR)
 				{
 					OpExpression* op_expr = new OpExpression;
+					op_expr->type = getOpType(tokens.at(i + 2).lexeme);
 					
-					switch (tokens.at(i + 1).type)
-					{
-					case NUMBER:
-					case STR:
-						op_expr->right = new LiteralExpression;
-						break;
-					case IDENTIFIER:
-						op_expr->right = new VariableExpression;
-						break;
-					default:
-						error("");
-						break;
-					}
-
 					switch (tokens.at(i + 1).type)
 					{
 					case NUMBER:
@@ -142,9 +186,25 @@ std::vector<Statement*> parse(std::vector<Token> tokens)
 						break;
 					}
 
+					switch (tokens.at(i + 3).type)
+					{
+					case NUMBER:
+					case STR:
+						op_expr->right = new LiteralExpression;
+						break;
+					case IDENTIFIER:
+						op_expr->right = new VariableExpression;
+						break;
+					default:
+						error("");
+						break;
+					}
+
 					assign_statement->expression = op_expr;
 
 					statements.push_back(assign_statement);
+
+					i += 3;
 				}
 				else
 				{
@@ -190,18 +250,54 @@ std::vector<Statement*> parse(std::vector<Token> tokens)
 					case IDENTIFIER:
 					{
 						VariableExpression* var_expr = new VariableExpression;
+						var_expr->id = tokens.at(i + 1).lexeme;
 						assign_statement->expression = var_expr;
 
 						statements.push_back(assign_statement);
 						break;
 					}
 					}
+
+					i += 1;
 				}
 			}
 		}
 
-		//else if (tokens.at(i).type == OPERATOR || tokens.at(i).type == COMPARE)
+		/*else if (tokens.at(i).type == OPERATOR || tokens.at(i).type == COMPARE)
+		{
+			OpExpression* op_expr = new OpExpression;
+			op_expr->type = getOpType(tokens.at(i).lexeme);
 
+			switch (tokens.at(i - 1).type)
+			{
+			case NUMBER:
+			case STR:
+				op_expr->left = new LiteralExpression;
+				break;
+			case IDENTIFIER:
+				op_expr->left = new VariableExpression;
+				break;
+			default:
+				error("");
+				break;
+			}
+
+			switch (tokens.at(i + 1).type)
+			{
+			case NUMBER:
+			case STR:
+				op_expr->right = new LiteralExpression;
+				break;
+			case IDENTIFIER:
+				op_expr->right = new VariableExpression;
+				break;
+			default:
+				error("");
+				break;
+			}
+
+			statements.push_back(op_expr);
+		}*/
 
 		i++;
 	}

@@ -142,14 +142,12 @@ std::vector<Token> lex(std::string source)
 				case '-':
 				case '*':
 				case '/':
+				case '>':
+				case '<':
 					type = OPERATOR;
 					break;
 				case '=':
 					type = EQUAL;
-					break;
-				case '>':
-				case '<':
-					type = COMPARE;
 					break;
 				case '"':
 					type = QUOTE;
@@ -164,9 +162,9 @@ std::vector<Token> lex(std::string source)
 				}
 			}
 
-			// if 2-symbol comparison operator
-			else if (token == "==" || token == ">=" || token == "<=" || token == "!=")
-				type = COMPARE;
+			// if multiple-symbol operator
+			else if (token == "==" || token == ">=" || token == "<=" || token == "!=" || token == "and" || token == "or" || token == "not")
+				type = OPERATOR;
 
 			// if keyword
 			else if (token == "var")
@@ -179,12 +177,6 @@ std::vector<Token> lex(std::string source)
 				type = ELSE;
 			else if (token == "elif")
 				type = ELIF;
-			else if (token == "and")
-				type = AND;
-			else if (token == "or")
-				type = OR;
-			else if (token == "not")
-				type = NOT;
 			else if (token == "print")
 				// go to the printing mode
 				type = PRINT;

@@ -20,31 +20,62 @@ struct Value
 
 std::map<std::string, Value> variables;
 
-// Here the terminology is messed up, so in some context Statement is an expression,
-// in other a statement
 struct Statement
 {
 	virtual void execute() = 0;
 };
 
+struct Expression
+{
+	virtual Value evaluate() = 0;
+};
+
 struct AssignStatement : public Statement
 {
 	std::string name;
-	Value value;
+	Expression* expression;
 	
 	void execute()
 	{
-		variables.insert_or_assign(name, value);
+		variables.insert_or_assign(name, expression->evaluate());
 	}
 };
 
-struct OperationStatement : public Statement
+struct OpExpression : public Expression
 {
-	Value left, right, result;
+	enum OpType
+	{
+		ADD, MULTIPLY, GREATER, LESS, GREATER_EQUAL, LESS_EQUAL, EQUALS, NOT_EQUALS
+	};
 	
-	void execute()
+	Expression* left;
+	Expression* right;
+	OpType type;
+	
+	Value evaluate()
 	{
 		
+	}
+};
+
+struct VariableExpression : public Expression
+{
+	std::string id;
+
+	Value evaluate()
+	{
+		return variables[id];
+	}
+};
+
+// maybe do that in the Expression base class
+struct LiteralExpression : public Expression
+{
+	Value val;
+
+	Value evaluate()
+	{
+		return val;
 	}
 };
 
@@ -79,36 +110,98 @@ std::vector<Statement*> parse(std::vector<Token> tokens)
 			{
 				assign_statement->name = tokens.at(i - 1).lexeme;
 
-				if (tokens.at(i + 1).type == IDENTIFIER)
-					assign_statement->value = variables[tokens.at(i - 1).lexeme];
-				else if (tokens.at(i + 1).type == NUMBER)
+				if (tokens.at(i + 2).type == OPERATOR | COMPARE)
 				{
-					if (isDecimal(tokens.at(i + 1).lexeme))
-						assign_statement->value.type = DECIMAL;
-					else
-						assign_statement->value.type = INTEGER;
+					OpExpression* op_expr = new OpExpression;
+					
+					switch (tokens.at(i + 1).type)
+					{
+					case NUMBER:
+					case STR:
+						op_expr->right = new LiteralExpression;
+						break;
+					case IDENTIFIER:
+						op_expr->right = new VariableExpression;
+						break;
+					default:
+						error("");
+						break;
+					}
 
-					assign_statement->value.literal = tokens.at(i + 1).lexeme;
-				}
-				else if (tokens.at(i + 1).type == STR)
-				{
-					assign_statement->value.type = STRING_VALUE;		// i may eliminate CHAR from ValueType and leave only STRING_VALUE
-					assign_statement->value.literal = tokens.at(i + 1).lexeme;
-				}
-				else if (tokens.at(i + 1).type == TRUE || tokens.at(i + 1).type == FALSE)
-				{
-					assign_statement->value.type = BOOL;
-					assign_statement->value.literal = tokens.at(i + 1).lexeme;
+					switch (tokens.at(i + 1).type)
+					{
+					case NUMBER:
+					case STR:
+						op_expr->left = new LiteralExpression;
+						break;
+					case IDENTIFIER:
+						op_expr->left = new VariableExpression;
+						break;
+					default:
+						error("");
+						break;
+					}
+
+					assign_statement->expression = op_expr;
+
+					statements.push_back(assign_statement);
 				}
 				else
 				{
-					error("error in the assignment statement");
-					continue;
-				}
+					switch (tokens.at(i + 1).type)
+					{
+					case NUMBER:
+					case STR:
+					{
+						LiteralExpression* lit_expr = new LiteralExpression;
+						Value val;
 
-				statements.push_back(assign_statement);
+						if (tokens.at(i + 1).type == NUMBER)
+						{
+							if (isDecimal(tokens.at(i + 1).lexeme))
+								val.type = DECIMAL;
+							else
+								val.type = INTEGER;
+
+							val.literal = tokens.at(i + 1).lexeme;
+						}
+						else if (tokens.at(i + 1).type == STR)
+						{
+							val.type = STRING_VALUE;		// i may eliminate CHAR from ValueType and leave only STRING_VALUE
+							val.literal = tokens.at(i + 1).lexeme;
+						}
+						else if (tokens.at(i + 1).type == TRUE || tokens.at(i + 1).type == FALSE)
+						{
+							val.type = BOOL;
+							val.literal = tokens.at(i + 1).lexeme;
+						}
+						else
+							error("error in the assignment statement");
+
+						val.literal = tokens.at(i + 1).lexeme;
+
+						lit_expr->val = val;
+
+						assign_statement->expression = lit_expr;
+
+						statements.push_back(assign_statement);
+						break;
+					}
+					case IDENTIFIER:
+					{
+						VariableExpression* var_expr = new VariableExpression;
+						assign_statement->expression = var_expr;
+
+						statements.push_back(assign_statement);
+						break;
+					}
+					}
+				}
 			}
 		}
+
+		//else if (tokens.at(i).type == OPERATOR || tokens.at(i).type == COMPARE)
+
 
 		i++;
 	}

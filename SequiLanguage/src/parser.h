@@ -14,11 +14,41 @@ enum ValueType
 
 struct Value
 {
-	ValueType type;
-	std::string literal;
+	virtual double to_number() = 0;
+	virtual std::string to_string() = 0;
 };
 
-std::map<std::string, Value> variables;
+struct NumValue : public Value
+{
+	double value;
+
+	double to_number()
+	{
+		return 1;
+	}
+
+	std::string to_string()
+	{
+		return "";
+	}
+};
+
+struct StrValue : public Value
+{
+	std::string value;
+	
+	double to_number()
+	{
+		return 1;
+	}
+
+	std::string to_string()
+	{
+		return "";
+	}
+};
+
+std::map<std::string, Value*> variables;
 
 struct Statement
 {
@@ -27,7 +57,7 @@ struct Statement
 
 struct Expression
 {
-	virtual Value evaluate() = 0;
+	virtual Value* evaluate() = 0;
 };
 
 struct AssignStatement : public Statement
@@ -53,35 +83,25 @@ struct OpExpression : public Expression
 	Expression* right;
 	OpType type;
 	
-	Value evaluate()
+	Value* evaluate()
 	{
-		Value result, l, r;
+		Value* result;
+		Value* l;
+		Value* r;
 		
 		l = left->evaluate();
 		r = right->evaluate();
+		uint8_t a;
 
 		switch (type)
 		{
 		case ADD:
 		{
-			if (l.type == r.type)
-				switch (l.type)
-				{
-				case INTEGER:
-					result
-					break;
-				case DECIMAL:
-					result = add_decimal(l, r);
-					break;
-				case STRING_VALUE:
-					result = add_str(l, r);
-					break;
-				case BOOL:
-					result = add_bool(l, r);
-					break;
-				}
+			
 		}
 		}
+
+		return NULL;
 	}
 };
 
@@ -89,7 +109,7 @@ struct VariableExpression : public Expression
 {
 	std::string id;
 
-	Value evaluate()
+	Value* evaluate()
 	{
 		return variables[id];
 	}
@@ -98,9 +118,9 @@ struct VariableExpression : public Expression
 // maybe do that in the Expression base class
 struct LiteralExpression : public Expression
 {
-	Value val;
+	Value* val;
 
-	Value evaluate()
+	Value* evaluate()
 	{
 		return val;
 	}
@@ -211,42 +231,64 @@ std::vector<Statement*> parse(std::vector<Token> tokens)
 					switch (tokens.at(i + 1).type)
 					{
 					case NUMBER:
-					case STR:
 					{
 						LiteralExpression* lit_expr = new LiteralExpression;
-						Value val;
-
-						if (tokens.at(i + 1).type == NUMBER)
-						{
-							if (isDecimal(tokens.at(i + 1).lexeme))
-								val.type = DECIMAL;
-							else
-								val.type = INTEGER;
-
-							val.literal = tokens.at(i + 1).lexeme;
-						}
-						else if (tokens.at(i + 1).type == STR)
-						{
-							val.type = STRING_VALUE;		// i may eliminate CHAR from ValueType and leave only STRING_VALUE
-							val.literal = tokens.at(i + 1).lexeme;
-						}
-						else if (tokens.at(i + 1).type == TRUE || tokens.at(i + 1).type == FALSE)
-						{
-							val.type = BOOL;
-							val.literal = tokens.at(i + 1).lexeme;
-						}
-						else
-							error("error in the assignment statement");
-
-						val.literal = tokens.at(i + 1).lexeme;
+						
+						NumValue* val = new NumValue;
+						val->value = stod(tokens.at(i + 1).lexeme);
 
 						lit_expr->val = val;
 
 						assign_statement->expression = lit_expr;
-
 						statements.push_back(assign_statement);
+
 						break;
 					}
+					case TRUE:
+					{
+						LiteralExpression* lit_expr = new LiteralExpression;
+						
+						NumValue* val = new NumValue;
+						val->value = 1;
+
+						lit_expr->val = val;
+
+						assign_statement->expression = lit_expr;
+						statements.push_back(assign_statement);
+
+						break;
+					}
+					case FALSE:
+					{
+						LiteralExpression* lit_expr = new LiteralExpression;
+						
+						NumValue* val = new NumValue;
+						val->value = 0;
+
+						lit_expr->val = val;
+
+						assign_statement->expression = lit_expr;
+						statements.push_back(assign_statement);
+
+						break;
+					}
+					case STR:
+					{
+						LiteralExpression* lit_expr = new LiteralExpression;
+						
+						StrValue* val = new StrValue;
+						val->value = tokens.at(i + 1).lexeme;
+
+						lit_expr->val = val;
+
+						assign_statement->expression = lit_expr;
+						statements.push_back(assign_statement);
+
+						break;
+					}
+					default:
+							error("error in the assignment statement");
+							break;
 					case IDENTIFIER:
 					{
 						VariableExpression* var_expr = new VariableExpression;

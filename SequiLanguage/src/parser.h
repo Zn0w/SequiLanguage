@@ -285,7 +285,7 @@ std::vector<Statement*> parse(std::vector<Token> tokens)
 			{
 				assign_statement->name = tokens.at(i - 1).lexeme;
 
-				if (tokens.at(i + 2).type == OPERATOR)
+				if (i + 2 < tokens.size() && tokens.at(i + 2).type == OPERATOR)
 				{
 					OpExpression* op_expr = new OpExpression;
 					op_expr->type = getOpType(tokens.at(i + 2).lexeme);
@@ -293,12 +293,36 @@ std::vector<Statement*> parse(std::vector<Token> tokens)
 					switch (tokens.at(i + 1).type)
 					{
 					case NUMBER:
+					{
+						LiteralExpression* lit_expr = new LiteralExpression;
+						NumValue* val = new NumValue;
+						val->value = stod(tokens.at(i + 1).lexeme);
+						lit_expr->val = val;
+
+						op_expr->left = lit_expr;
+						
+						break;
+					}
 					case STR:
-						op_expr->left = new LiteralExpression;
+					{
+						LiteralExpression* lit_expr = new LiteralExpression;
+						StrValue* val = new StrValue;
+						val->value = tokens.at(i + 1).lexeme;
+						lit_expr->val = val;
+
+						op_expr->left = lit_expr;
+
 						break;
+					}
 					case IDENTIFIER:
-						op_expr->left = new VariableExpression;
+					{
+						VariableExpression * var_expr = new VariableExpression;
+						var_expr->id = tokens.at(i + 1).lexeme;
+
+						op_expr->left = var_expr;
+
 						break;
+					}
 					default:
 						error("");
 						break;
@@ -307,12 +331,36 @@ std::vector<Statement*> parse(std::vector<Token> tokens)
 					switch (tokens.at(i + 3).type)
 					{
 					case NUMBER:
+					{
+						LiteralExpression* lit_expr = new LiteralExpression;
+						NumValue* val = new NumValue;
+						val->value = stod(tokens.at(i + 3).lexeme);
+						lit_expr->val = val;
+
+						op_expr->right = lit_expr;
+
+						break;
+					}
 					case STR:
-						op_expr->right = new LiteralExpression;
+					{
+						LiteralExpression* lit_expr = new LiteralExpression;
+						StrValue* val = new StrValue;
+						val->value = tokens.at(i + 3).lexeme;
+						lit_expr->val = val;
+
+						op_expr->right = lit_expr;
+
 						break;
+					}
 					case IDENTIFIER:
-						op_expr->right = new VariableExpression;
+					{
+						VariableExpression * var_expr = new VariableExpression;
+						var_expr->id = tokens.at(i + 3).lexeme;
+
+						op_expr->right = var_expr;
+
 						break;
+					}
 					default:
 						error("");
 						break;

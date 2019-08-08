@@ -54,7 +54,7 @@ int main(int argc, char** argv)
 int main()
 {
 	std::vector<Token> tokens;
-	tokens.reserve(6);
+	tokens.reserve(9);
 	
 	tokens.push_back(Token(IDENTIFIER, "a"));
 	tokens.push_back(Token(EQUAL, "="));
@@ -62,6 +62,11 @@ int main()
 	tokens.push_back(Token(IDENTIFIER, "length"));
 	tokens.push_back(Token(EQUAL, "="));
 	tokens.push_back(Token(NUMBER, "30.4"));
+	tokens.push_back(Token(IDENTIFIER, "a"));
+	tokens.push_back(Token(EQUAL, "="));
+	tokens.push_back(Token(NUMBER, "5"));
+	tokens.push_back(Token(OPERATOR, "+"));
+	tokens.push_back(Token(NUMBER, "7"));
 
 	std::vector<Statement*> statements = parse(tokens);
 

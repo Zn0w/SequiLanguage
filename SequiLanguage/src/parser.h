@@ -85,23 +85,121 @@ struct OpExpression : public Expression
 	
 	Value* evaluate()
 	{
-		Value* result;
 		Value* l;
 		Value* r;
 		
 		l = left->evaluate();
 		r = right->evaluate();
-		uint8_t a;
 
 		switch (type)
 		{
 		case ADD:
 		{
-			
-		}
+			if (dynamic_cast<NumValue*>(l) != NULL)
+			{
+				NumValue* result = new NumValue;
+				result->value = l->to_number() + r->to_number();
+				return result;
+			}
+			else
+			{
+				StrValue* result = new StrValue;
+				result->value = l->to_string() + r->to_string();
+				return result;
+			}
 		}
 
-		return NULL;
+		case SUBTRACT:
+		{
+			NumValue* result = new NumValue;
+			result->value = l->to_number() - r->to_number();
+			return result;
+		}
+
+		case MULTIPLY:
+		{
+			NumValue* result = new NumValue;
+			result->value = l->to_number() * r->to_number();
+			return result;
+		}
+
+		case DIVIDE:
+		{
+			NumValue* result = new NumValue;
+			result->value = l->to_number() / r->to_number();
+			return result;
+		}
+
+		case GREATER:
+		{
+			NumValue* result = new NumValue;
+			result->value = l->to_number() > r->to_number();
+			return result;
+		}
+
+		case LESS:
+		{
+			NumValue* result = new NumValue;
+			result->value = l->to_number() < r->to_number();
+			return result;
+		}
+
+		case GREATER_EQUAL:
+		{
+			NumValue* result = new NumValue;
+			result->value = l->to_number() >= r->to_number();
+			return result;
+		}
+
+		case LESS_EQUAL:
+		{
+			NumValue* result = new NumValue;
+			result->value = l->to_number() <= r->to_number();
+			return result;
+		}
+
+		case EQUALS:
+		{
+			NumValue* result = new NumValue;
+			
+			if (dynamic_cast<NumValue*>(l) != NULL)
+				result->value = l->to_number() == r->to_number();
+			else
+				result->value = l->to_string() == r->to_string();
+
+			return result;
+		}
+
+		case NOT_EQUALS:
+		{
+			NumValue* result = new NumValue;
+
+			if (dynamic_cast<NumValue*>(l) != NULL)
+				result->value = l->to_number() != r->to_number();
+			else
+				result->value = l->to_string() != r->to_string();
+
+			return result;
+		}
+
+		case AND:
+		{
+			NumValue* result = new NumValue;
+			result->value = l->to_number() && r->to_number();
+			return result;
+		}
+
+		case OR:
+		{
+			NumValue* result = new NumValue;
+			result->value = l->to_number() || r->to_number();
+			return result;
+		}
+
+		default:
+			// error
+			return NULL;
+		}
 	}
 };
 

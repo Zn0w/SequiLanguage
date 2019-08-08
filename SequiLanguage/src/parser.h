@@ -24,12 +24,12 @@ struct NumValue : public Value
 
 	double to_number()
 	{
-		return 1;
+		return value;
 	}
 
 	std::string to_string()
 	{
-		return "";
+		return std::to_string(value);
 	}
 };
 
@@ -39,12 +39,12 @@ struct StrValue : public Value
 	
 	double to_number()
 	{
-		return 1;
+		return stod(value);
 	}
 
 	std::string to_string()
 	{
-		return "";
+		return value;
 	}
 };
 

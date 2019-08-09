@@ -1,4 +1,7 @@
 a = 15 length = 30.4
 a = 5 + 7
 length = a + 6
+length = 2 + a
 print "Hello World! " a ;
+result = a + length
+print result ;

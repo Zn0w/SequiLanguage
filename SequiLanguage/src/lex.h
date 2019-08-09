@@ -17,18 +17,11 @@ enum TokenType
 	LEFT_PAREN, RIGHT_PAREN, LEFT_BRACE, RIGHT_BRACE, LEFT_BRACK, RIGHT_BRACK,
 	COMMA, DOT, SEMICOLON, COLON, QUOTE,
 
-	OPERATOR,
-	//ADD_OPERATOR,		// + - OR
-	//MULTIPLY_OPERATOR	// * / AND DIV MOD
-	//RELATION_OPERATOR	// > < 
-
-	EQUAL, COMPARE, //EQUAL_EQUAL,
-	//GREATER, GREATER_EQUAL,
-	//LESS, LESS_EQUAL,
+	OPERATOR, EQUAL,
 
 	IDENTIFIER, STR, NUMBER,
 
-	VAR, FUNC, IF, ELSE, ELIF, AND, OR, NOT, PRINT, TRUE, FALSE, RETURN,
+	NEWLINE, FUNC, IF, ELSE, ELIF, AND, OR, NOT, PRINT, TRUE, FALSE, RETURN,
 
 	END_OF_FILE,
 	UNDEF // ??
@@ -189,8 +182,8 @@ std::vector<Token> lex(std::string source)
 				type = OPERATOR;
 
 			// if keyword
-			else if (token == "var")
-				type = VAR;
+			else if (token == "newline")
+				type = NEWLINE;
 			else if (token == "func")
 				type = FUNC;
 			else if (token == "if")

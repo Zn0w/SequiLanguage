@@ -536,6 +536,19 @@ std::vector<Statement*> parse(std::vector<Token> tokens)
 
 					break;
 				}
+				case NEWLINE:
+				{
+					LiteralExpression* lit_expr = new LiteralExpression;
+					
+					StrValue* val = new StrValue;
+					val->value = "\n";
+					
+					lit_expr->val = val;
+
+					ps->expression.push_back(lit_expr);
+
+					break;
+				}
 				default:
 					error("");
 					break;

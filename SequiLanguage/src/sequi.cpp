@@ -37,6 +37,8 @@ int main(int argc, char** argv)
 
 	return 0;
 }
+
+// For quick debugging
 /*
 int main()
 {

@@ -70,7 +70,17 @@ bool isNumber(std::string str)
 
 bool isValidId(std::string t)
 {
-	return !std::isdigit(t.at(0)) || t.at(0) == '-' | '+' | '*' | '/' | '%' | '!' | '=';
+	if (std::isdigit(t.at(0)) && t.at(0) == '-' && t.at(0) == '+' && t.at(0) == '*' && t.at(0) == '/' && t.at(0) == '%' && t.at(0) == '!' && t.at(0) == '=')
+		return false;
+
+	// at least one symbol must be a letter
+	for (int i = 0; i < t.size(); i++)
+	{
+		if (((int)t.at(i) >= 65 && (int)t.at(i) <= 90) || ((int)t.at(i) >= 97 && (int)t.at(i) <= 122))
+			return true;
+	}
+
+	return false;
 }
 
 std::vector<Token> lex(std::string source)
@@ -161,8 +171,16 @@ std::vector<Token> lex(std::string source)
 					break;
 
 				default:
-					// check if literal, if not print error
+				{
+					// check if literal or identifier, if not print error
+
+					if (isNumber(token))
+						type = NUMBER;
+					else if (isValidId(token)) // is a letter
+						type = IDENTIFIER;
+
 					break;
+				}
 				}
 			}
 

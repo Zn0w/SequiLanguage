@@ -50,8 +50,7 @@ enum LexMode
 {
 	DEFAULT,
 	STRING,
-	COMMENT,
-	PRINTING
+	COMMENT
 };
 
 bool isNumber(std::string str)
@@ -178,7 +177,6 @@ std::vector<Token> lex(std::string source)
 			else if (token == "elif")
 				type = ELIF;
 			else if (token == "print")
-				// go to the printing mode
 				type = PRINT;
 			else if (token == "true")
 				type = TRUE;

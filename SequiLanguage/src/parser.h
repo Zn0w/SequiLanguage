@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <map>
+#include <stdio.h>
 
 #include "lex.h"
 
@@ -200,6 +201,17 @@ struct OpExpression : public Expression
 			// error
 			return NULL;
 		}
+	}
+};
+
+struct PrintStatement : public Statement
+{
+	std::vector<Expression*> expression;
+	
+	void execute()
+	{
+		for (Expression* expr : expression)
+			printf("%s", expr->evaluate()->to_string().c_str());
 	}
 };
 
@@ -432,9 +444,6 @@ std::vector<Statement*> parse(std::vector<Token> tokens)
 
 						break;
 					}
-					default:
-							error("error in the assignment statement");
-							break;
 					case IDENTIFIER:
 					{
 						VariableExpression* var_expr = new VariableExpression;
@@ -444,6 +453,9 @@ std::vector<Statement*> parse(std::vector<Token> tokens)
 						statements.push_back(assign_statement);
 						break;
 					}
+					default:
+							error("error in the assignment statement");
+							break;
 					}
 
 					i += 1;
@@ -451,41 +463,85 @@ std::vector<Statement*> parse(std::vector<Token> tokens)
 			}
 		}
 
-		/*else if (tokens.at(i).type == OPERATOR || tokens.at(i).type == COMPARE)
+		else if (tokens.at(i).type == PRINT)
 		{
-			OpExpression* op_expr = new OpExpression;
-			op_expr->type = getOpType(tokens.at(i).lexeme);
-
-			switch (tokens.at(i - 1).type)
+			PrintStatement* ps = new PrintStatement;
+			
+			for (int j = i + 1; j < tokens.size(); j++)
 			{
-			case NUMBER:
-			case STR:
-				op_expr->left = new LiteralExpression;
-				break;
-			case IDENTIFIER:
-				op_expr->left = new VariableExpression;
-				break;
-			default:
-				error("");
-				break;
-			}
+				if (tokens.at(j).type == SEMICOLON)
+				{
+					statements.push_back(ps);
+					break;
+				}
 
-			switch (tokens.at(i + 1).type)
-			{
-			case NUMBER:
-			case STR:
-				op_expr->right = new LiteralExpression;
-				break;
-			case IDENTIFIER:
-				op_expr->right = new VariableExpression;
-				break;
-			default:
-				error("");
-				break;
-			}
+				switch (tokens.at(j).type)
+				{
+				case NUMBER:
+				{
+					LiteralExpression* lit_expr = new LiteralExpression;
+					NumValue* val = new NumValue;
+					val->value = stod(tokens.at(j).lexeme);
+					lit_expr->val = val;
 
-			statements.push_back(op_expr);
-		}*/
+					ps->expression.push_back(lit_expr);
+
+					break;
+				}
+				case TRUE:
+				{
+					LiteralExpression* lit_expr = new LiteralExpression;
+
+					NumValue* val = new NumValue;
+					val->value = 1;
+
+					lit_expr->val = val;
+
+					ps->expression.push_back(lit_expr);
+
+					break;
+				}
+				case FALSE:
+				{
+					LiteralExpression* lit_expr = new LiteralExpression;
+
+					NumValue* val = new NumValue;
+					val->value = 0;
+
+					lit_expr->val = val;
+
+					ps->expression.push_back(lit_expr);
+
+					break;
+				}
+				case STR:
+				{
+					LiteralExpression* lit_expr = new LiteralExpression;
+
+					StrValue* val = new StrValue;
+					val->value = tokens.at(j).lexeme;
+
+					lit_expr->val = val;
+
+					ps->expression.push_back(lit_expr);
+
+					break;
+				}
+				case IDENTIFIER:
+				{
+					VariableExpression* var_expr = new VariableExpression;
+					var_expr->id = tokens.at(j).lexeme;
+					
+					ps->expression.push_back(var_expr);
+
+					break;
+				}
+				default:
+					error("");
+					break;
+				}
+			}
+		}
 
 		i++;
 	}

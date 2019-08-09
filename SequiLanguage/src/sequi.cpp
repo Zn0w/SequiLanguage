@@ -9,7 +9,7 @@
 #include "lex.h"
 #include "parser.h"
 
-/*
+
 int main(int argc, char** argv)
 {
 	if (argc == 1)
@@ -27,30 +27,17 @@ int main(int argc, char** argv)
 		return 0;
 	}
 
-#if DEBUG == 1
-	printf("Source File:\n");
-	printf("##############################DEBUG#############################\n");
-	printf("%s\n", file_contents.c_str());
-	printf("##############################DEBUG#############################\n");
-#endif
-
 	std::vector<Token> tokens = lex(file_contents);
-
-#if DEBUG == 1
-	printf("\n\nTokens:\n");
-	printf("##############################DEBUG#############################\n");
-	for (Token token : tokens)
-	{
-		printf("%s\n", token.lexeme.c_str());
-	}
-	printf("##############################DEBUG#############################\n");
-#endif
 
 	std::vector<Statement*> statements = parse(tokens);
 
-	return 0;
-}*/
+	// execute program
+	for (Statement* statement : statements)
+		statement->execute();
 
+	return 0;
+}
+/*
 int main()
 {
 	std::vector<Token> tokens;
@@ -88,4 +75,4 @@ int main()
 		statement->execute();
 
 	return 0;
-}
+}*/

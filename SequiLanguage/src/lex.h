@@ -68,6 +68,11 @@ bool isNumber(std::string str)
 	return true;
 }
 
+bool isValidId(std::string t)
+{
+	return !std::isdigit(t.at(0)) || t.at(0) == '-' | '+' | '*' | '/' | '%' | '!' | '=';
+}
+
 std::vector<Token> lex(std::string source)
 {
 	LexMode mode = DEFAULT;
@@ -195,10 +200,8 @@ std::vector<Token> lex(std::string source)
 				continue;
 			}
 			// else check if valid identifier
-			
-			// TODO deal with undefined token
-			else
-				return tokens;
+			else if (isValidId(token))
+				type = IDENTIFIER;
 
 			tokens.push_back(Token(type, token));
 		} break;

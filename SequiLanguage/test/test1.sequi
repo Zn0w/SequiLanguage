@@ -1,8 +1,4 @@
-+ - var
-
-> <
-
-
-* "Hello World!"
-" hey :) " 23 15
-4.5
+a = 15 length = 30.4
+a = 5 + 7
+length = a + 6
+print "Hello World! " a ;

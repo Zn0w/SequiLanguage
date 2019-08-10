@@ -438,13 +438,50 @@ std::vector<Statement*> parse(std::vector<Token> tokens)
 
 		else if (tokens.at(i).type == IF && tokens.at(i + 1).type == LEFT_PAREN)
 		{
-			for (int j = i + 2; j < tokens.size(); j++)
-			{
-				if (tokens.at(j).type == RIGHT_PAREN)
-				{
+			IfStatement* is = new IfStatement;
 
+			// get a condition
+			if (tokens.at(i + 3).type == OPERATOR)
+			{
+				OpExpression* op_expr = new OpExpression;
+				op_expr->left = get_expr(tokens.at(i + 2));
+				
+				for (int j = i + 3; j < tokens.size(); j++)
+				{
+					if (tokens.at(j).type == RIGHT_PAREN)
+					{
+						is->condition = op_expr->left;
+						i = j;
+						break;
+					}
+
+					if (tokens.at(j).type == OPERATOR)
+					{
+						op_expr->type = getOpType(tokens.at(j).lexeme);
+						op_expr->right = get_expr(tokens.at(j + 1));
+
+						LiteralExpression* lit_expr = new LiteralExpression;
+						Value* val = op_expr->evaluate();
+						lit_expr->val = val;
+
+						op_expr->left = lit_expr;
+					}
 				}
 			}
+			else if (tokens.at(i + 3).type == RIGHT_PAREN)
+			{
+
+				is->condition = get_expr(tokens.at(i + 3));
+				i += 3;
+			}
+			else
+			{
+				error("");
+				continue;
+			}
+
+			// get a then expression
+
 		}
 
 		i++;

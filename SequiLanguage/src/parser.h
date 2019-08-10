@@ -294,6 +294,63 @@ void error(const char*)
 
 }
 
+Expression* get_expr(Token token)
+{
+	switch (token.type)
+	{
+	case NUMBER:
+	{
+		LiteralExpression* lit_expr = new LiteralExpression;
+		NumValue* val = new NumValue;
+		val->value = stod(token.lexeme);
+		lit_expr->val = val;
+
+		return lit_expr;
+	}
+	case STR:
+	{
+		LiteralExpression* lit_expr = new LiteralExpression;
+		StrValue* val = new StrValue;
+		val->value = token.lexeme;
+		lit_expr->val = val;
+
+		return lit_expr;
+	}
+	case TRUE:
+	{
+		LiteralExpression* lit_expr = new LiteralExpression;
+
+		NumValue* val = new NumValue;
+		val->value = 1;
+
+		lit_expr->val = val;
+
+		return lit_expr;
+	}
+	case FALSE:
+	{
+		LiteralExpression* lit_expr = new LiteralExpression;
+
+		NumValue* val = new NumValue;
+		val->value = 0;
+
+		lit_expr->val = val;
+
+		return lit_expr;
+	}
+	case IDENTIFIER:
+	{
+		VariableExpression * var_expr = new VariableExpression;
+		var_expr->id = token.lexeme;
+
+		return var_expr;
+	}
+	default:
+		error("");
+		return NULL;
+	}
+}
+
 std::vector<Statement*> parse(std::vector<Token> tokens)
 {
 	std::vector<Statement*> statements;
@@ -312,163 +369,37 @@ std::vector<Statement*> parse(std::vector<Token> tokens)
 				if (i + 2 < tokens.size() && tokens.at(i + 2).type == OPERATOR)
 				{
 					OpExpression* op_expr = new OpExpression;
-					op_expr->type = getOpType(tokens.at(i + 2).lexeme);
+					op_expr->left = get_expr(tokens.at(i + 1));
 					
-					switch (tokens.at(i + 1).type)
+					for (int j = i + 2; j < tokens.size(); j++)
 					{
-					case NUMBER:
-					{
-						LiteralExpression* lit_expr = new LiteralExpression;
-						NumValue* val = new NumValue;
-						val->value = stod(tokens.at(i + 1).lexeme);
-						lit_expr->val = val;
+						if (tokens.at(j).type == SEMICOLON)
+						{
+							assign_statement->expression = op_expr->left;
+							//statements.push_back(assign_statement);
+							assign_statement->execute();
+							
+							break;
+						}
 
-						op_expr->left = lit_expr;
-						
-						break;
+						if (tokens.at(j).type == OPERATOR)
+						{
+							op_expr->type = getOpType(tokens.at(j).lexeme);
+							op_expr->right = get_expr(tokens.at(j + 1));
+
+							LiteralExpression* lit_expr = new LiteralExpression;
+							Value* val = op_expr->evaluate();
+							lit_expr->val = val;
+
+							op_expr->left = lit_expr;
+						}
 					}
-					case STR:
-					{
-						LiteralExpression* lit_expr = new LiteralExpression;
-						StrValue* val = new StrValue;
-						val->value = tokens.at(i + 1).lexeme;
-						lit_expr->val = val;
-
-						op_expr->left = lit_expr;
-
-						break;
-					}
-					case IDENTIFIER:
-					{
-						VariableExpression * var_expr = new VariableExpression;
-						var_expr->id = tokens.at(i + 1).lexeme;
-
-						op_expr->left = var_expr;
-
-						break;
-					}
-					default:
-						error("");
-						break;
-					}
-
-					switch (tokens.at(i + 3).type)
-					{
-					case NUMBER:
-					{
-						LiteralExpression* lit_expr = new LiteralExpression;
-						NumValue* val = new NumValue;
-						val->value = stod(tokens.at(i + 3).lexeme);
-						lit_expr->val = val;
-
-						op_expr->right = lit_expr;
-
-						break;
-					}
-					case STR:
-					{
-						LiteralExpression* lit_expr = new LiteralExpression;
-						StrValue* val = new StrValue;
-						val->value = tokens.at(i + 3).lexeme;
-						lit_expr->val = val;
-
-						op_expr->right = lit_expr;
-
-						break;
-					}
-					case IDENTIFIER:
-					{
-						VariableExpression * var_expr = new VariableExpression;
-						var_expr->id = tokens.at(i + 3).lexeme;
-
-						op_expr->right = var_expr;
-
-						break;
-					}
-					default:
-						error("");
-						break;
-					}
-
-					assign_statement->expression = op_expr;
-
-					statements.push_back(assign_statement);
-
-					i += 3;
 				}
 				else
 				{
-					switch (tokens.at(i + 1).type)
-					{
-					case NUMBER:
-					{
-						LiteralExpression* lit_expr = new LiteralExpression;
-						
-						NumValue* val = new NumValue;
-						val->value = stod(tokens.at(i + 1).lexeme);
-
-						lit_expr->val = val;
-
-						assign_statement->expression = lit_expr;
-						statements.push_back(assign_statement);
-
-						break;
-					}
-					case TRUE:
-					{
-						LiteralExpression* lit_expr = new LiteralExpression;
-						
-						NumValue* val = new NumValue;
-						val->value = 1;
-
-						lit_expr->val = val;
-
-						assign_statement->expression = lit_expr;
-						statements.push_back(assign_statement);
-
-						break;
-					}
-					case FALSE:
-					{
-						LiteralExpression* lit_expr = new LiteralExpression;
-						
-						NumValue* val = new NumValue;
-						val->value = 0;
-
-						lit_expr->val = val;
-
-						assign_statement->expression = lit_expr;
-						statements.push_back(assign_statement);
-
-						break;
-					}
-					case STR:
-					{
-						LiteralExpression* lit_expr = new LiteralExpression;
-						
-						StrValue* val = new StrValue;
-						val->value = tokens.at(i + 1).lexeme;
-
-						lit_expr->val = val;
-
-						assign_statement->expression = lit_expr;
-						statements.push_back(assign_statement);
-
-						break;
-					}
-					case IDENTIFIER:
-					{
-						VariableExpression* var_expr = new VariableExpression;
-						var_expr->id = tokens.at(i + 1).lexeme;
-						assign_statement->expression = var_expr;
-
-						statements.push_back(assign_statement);
-						break;
-					}
-					default:
-							error("error in the assignment statement");
-							break;
-					}
+					assign_statement->expression = get_expr(tokens.at(i + 1));
+					//statements.push_back(assign_statement);
+					assign_statement->execute();
 
 					i += 1;
 				}
@@ -483,7 +414,8 @@ std::vector<Statement*> parse(std::vector<Token> tokens)
 			{
 				if (tokens.at(j).type == SEMICOLON)
 				{
-					statements.push_back(ps);
+					//statements.push_back(ps);
+					ps->execute();
 					i = j;
 					break;
 				}

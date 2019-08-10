@@ -472,6 +472,7 @@ std::vector<Statement*> parse(std::vector<Token> tokens)
 				if (tokens.at(j).type == SEMICOLON)
 				{
 					statements.push_back(ps);
+					i = j;
 					break;
 				}
 
@@ -554,6 +555,11 @@ std::vector<Statement*> parse(std::vector<Token> tokens)
 					break;
 				}
 			}
+		}
+
+		else if (tokens.at(i).type == IF)
+		{
+
 		}
 
 		i++;

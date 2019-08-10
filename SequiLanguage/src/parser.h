@@ -420,84 +420,19 @@ std::vector<Statement*> parse(std::vector<Token> tokens)
 					break;
 				}
 
-				switch (tokens.at(j).type)
-				{
-				case NUMBER:
-				{
-					LiteralExpression* lit_expr = new LiteralExpression;
-					NumValue* val = new NumValue;
-					val->value = stod(tokens.at(j).lexeme);
-					lit_expr->val = val;
-
-					ps->expression.push_back(lit_expr);
-
-					break;
-				}
-				case TRUE:
+				if (tokens.at(j).type == NEWLINE)
 				{
 					LiteralExpression* lit_expr = new LiteralExpression;
 
-					NumValue* val = new NumValue;
-					val->value = 1;
-
-					lit_expr->val = val;
-
-					ps->expression.push_back(lit_expr);
-
-					break;
-				}
-				case FALSE:
-				{
-					LiteralExpression* lit_expr = new LiteralExpression;
-
-					NumValue* val = new NumValue;
-					val->value = 0;
-
-					lit_expr->val = val;
-
-					ps->expression.push_back(lit_expr);
-
-					break;
-				}
-				case STR:
-				{
-					LiteralExpression* lit_expr = new LiteralExpression;
-
-					StrValue* val = new StrValue;
-					val->value = tokens.at(j).lexeme;
-
-					lit_expr->val = val;
-
-					ps->expression.push_back(lit_expr);
-
-					break;
-				}
-				case IDENTIFIER:
-				{
-					VariableExpression* var_expr = new VariableExpression;
-					var_expr->id = tokens.at(j).lexeme;
-					
-					ps->expression.push_back(var_expr);
-
-					break;
-				}
-				case NEWLINE:
-				{
-					LiteralExpression* lit_expr = new LiteralExpression;
-					
 					StrValue* val = new StrValue;
 					val->value = "\n";
-					
+
 					lit_expr->val = val;
 
 					ps->expression.push_back(lit_expr);
-
-					break;
 				}
-				default:
-					error("");
-					break;
-				}
+				else
+					ps->expression.push_back(get_expr(tokens.at(j)));
 			}
 		}
 

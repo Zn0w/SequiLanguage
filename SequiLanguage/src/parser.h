@@ -215,6 +215,18 @@ struct PrintStatement : public Statement
 	}
 };
 
+struct IfStatement : public Statement
+{
+	Expression* condition;
+	Expression* then;
+	Expression* or_else;
+
+	void execute()
+	{
+		
+	}
+};
+
 struct VariableExpression : public Expression
 {
 	std::string id;
@@ -557,9 +569,15 @@ std::vector<Statement*> parse(std::vector<Token> tokens)
 			}
 		}
 
-		else if (tokens.at(i).type == IF)
+		else if (tokens.at(i).type == IF && tokens.at(i + 1).type == LEFT_PAREN)
 		{
+			for (int j = i + 2; j < tokens.size(); j++)
+			{
+				if (tokens.at(j).type == RIGHT_PAREN)
+				{
 
+				}
+			}
 		}
 
 		i++;

@@ -5,3 +5,4 @@ length = 2 + a
 print "Hello World! " a newline ;
 result = a + length
 print result ;
+a = 5 + 5 * 2

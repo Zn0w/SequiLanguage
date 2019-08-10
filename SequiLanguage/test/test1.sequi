@@ -1,8 +1,14 @@
 a = 15 length = 30.4
-a = 5 + 7 + 6 ;
+a = 5 + 5 * 2 + 3 ;
 length = a + 6 ;
 length = 2 + a ;
 print "Hello World! " a newline ;
 result = a + length ;
-print result ;
-a = 5 + 5 * 2 + 3 ;
+print result newline ;
+print true "  " false newline ;
+
+sunny = false
+umbrella = false
+dry = sunny or umbrella
+
+print "Are you dry? " dry ;

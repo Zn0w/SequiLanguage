@@ -351,6 +351,16 @@ Expression* get_expr(Token token)
 	}
 }
 
+// returns the index of the token that means the end of the compound expression
+int get_block_edge(std::vector<Token>* tokens, int start, TokenType terminate_token)
+{
+	for (int i = start; i < tokens->size(); i++)
+		if (tokens->at(i).type == terminate_token)
+			return i;
+
+	return 0;
+}
+
 std::vector<Statement*> parse(std::vector<Token> tokens)
 {
 	std::vector<Statement*> statements;
@@ -370,18 +380,12 @@ std::vector<Statement*> parse(std::vector<Token> tokens)
 				{
 					OpExpression* op_expr = new OpExpression;
 					op_expr->left = get_expr(tokens.at(i + 1));
-					
-					for (int j = i + 2; j < tokens.size(); j++)
-					{
-						if (tokens.at(j).type == SEMICOLON)
-						{
-							assign_statement->expression = op_expr->left;
-							//statements.push_back(assign_statement);
-							assign_statement->execute();
-							
-							break;
-						}
 
+					int edge = get_block_edge(&tokens, i + 2, SEMICOLON);
+					// if edge == 0 then throw exception, display error ...
+					
+					for (int j = i + 2; j < edge; j++)
+					{
 						if (tokens.at(j).type == OPERATOR)
 						{
 							op_expr->type = getOpType(tokens.at(j).lexeme);
@@ -394,6 +398,11 @@ std::vector<Statement*> parse(std::vector<Token> tokens)
 							op_expr->left = lit_expr;
 						}
 					}
+
+					assign_statement->expression = op_expr->left;
+					//statements.push_back(assign_statement);
+					assign_statement->execute();
+					i = edge;
 				}
 				else
 				{
@@ -410,16 +419,10 @@ std::vector<Statement*> parse(std::vector<Token> tokens)
 		{
 			PrintStatement* ps = new PrintStatement;
 			
-			for (int j = i + 1; j < tokens.size(); j++)
+			int edge = get_block_edge(&tokens, i + 1, SEMICOLON);
+			
+			for (int j = i + 1; j < edge; j++)
 			{
-				if (tokens.at(j).type == SEMICOLON)
-				{
-					//statements.push_back(ps);
-					ps->execute();
-					i = j;
-					break;
-				}
-
 				if (tokens.at(j).type == NEWLINE)
 				{
 					LiteralExpression* lit_expr = new LiteralExpression;
@@ -434,6 +437,9 @@ std::vector<Statement*> parse(std::vector<Token> tokens)
 				else
 					ps->expression.push_back(get_expr(tokens.at(j)));
 			}
+
+			ps->execute();
+			i = edge;
 		}
 
 		else if (tokens.at(i).type == IF && tokens.at(i + 1).type == LEFT_PAREN)
@@ -446,15 +452,10 @@ std::vector<Statement*> parse(std::vector<Token> tokens)
 				OpExpression* op_expr = new OpExpression;
 				op_expr->left = get_expr(tokens.at(i + 2));
 				
-				for (int j = i + 3; j < tokens.size(); j++)
-				{
-					if (tokens.at(j).type == RIGHT_PAREN)
-					{
-						is->condition = op_expr->left;
-						i = j;
-						break;
-					}
+				int edge = get_block_edge(&tokens, i + 3, RIGHT_PAREN);
 
+				for (int j = i + 3; j < edge; j++)
+				{
 					if (tokens.at(j).type == OPERATOR)
 					{
 						op_expr->type = getOpType(tokens.at(j).lexeme);
@@ -467,6 +468,9 @@ std::vector<Statement*> parse(std::vector<Token> tokens)
 						op_expr->left = lit_expr;
 					}
 				}
+
+				is->condition = op_expr->left;
+				i = edge;
 			}
 			else if (tokens.at(i + 3).type == RIGHT_PAREN)
 			{

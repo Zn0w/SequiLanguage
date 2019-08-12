@@ -204,6 +204,12 @@ struct OpExpression : public Expression
 	}
 };
 
+struct Scope
+{
+	std::vector<Statement> statements;
+	std::map<std::string, Value*> local_variables;
+};
+
 struct PrintStatement : public Statement
 {
 	std::vector<Expression*> expression;
@@ -467,7 +473,10 @@ std::vector<Statement*> parse(std::vector<Token> tokens)
 			}
 
 			// get a then expression
+			if (tokens.at(i + 1).type == LEFT_BRACE)
+			{
 
+			}
 		}
 
 		i++;

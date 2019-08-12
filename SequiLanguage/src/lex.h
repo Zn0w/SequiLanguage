@@ -125,13 +125,13 @@ std::vector<Token> lex(std::string source)
 					type = LEFT_BRACE;
 					break;
 				case '}':
-					type = RIGHT_PAREN;
+					type = RIGHT_BRACE;
 					break;
 				case '[':
 					type = LEFT_BRACK;
 					break;
 				case ']':
-					type = RIGHT_PAREN;
+					type = RIGHT_BRACK;
 					break;
 				case ',':
 					type = COMMA;

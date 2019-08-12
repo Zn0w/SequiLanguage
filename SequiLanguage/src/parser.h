@@ -361,6 +361,31 @@ int get_block_edge(std::vector<Token>* tokens, int start, TokenType terminate_to
 	return 0;
 }
 
+Expression* calculate_compound_op_expr(std::vector<Token>* tokens, int start, int edge, int *parse_iterator)
+{
+	OpExpression* op_expr = new OpExpression;
+	op_expr->left = get_expr(tokens->at(start));
+
+	for (int j = start + 1; j < edge; j++)
+	{
+		if (tokens->at(j).type == OPERATOR)
+		{
+			op_expr->type = getOpType(tokens->at(j).lexeme);
+			op_expr->right = get_expr(tokens->at(j + 1));
+
+			LiteralExpression* lit_expr = new LiteralExpression;
+			Value* val = op_expr->evaluate();
+			lit_expr->val = val;
+
+			op_expr->left = lit_expr;
+		}
+	}
+
+	*parse_iterator = edge;
+
+	return op_expr->left;
+}
+
 std::vector<Statement*> parse(std::vector<Token> tokens)
 {
 	std::vector<Statement*> statements;
@@ -378,31 +403,9 @@ std::vector<Statement*> parse(std::vector<Token> tokens)
 
 				if (i + 2 < tokens.size() && tokens.at(i + 2).type == OPERATOR)
 				{
-					OpExpression* op_expr = new OpExpression;
-					op_expr->left = get_expr(tokens.at(i + 1));
-
-					int edge = get_block_edge(&tokens, i + 2, SEMICOLON);
-					// if edge == 0 then throw exception, display error ...
-					
-					for (int j = i + 2; j < edge; j++)
-					{
-						if (tokens.at(j).type == OPERATOR)
-						{
-							op_expr->type = getOpType(tokens.at(j).lexeme);
-							op_expr->right = get_expr(tokens.at(j + 1));
-
-							LiteralExpression* lit_expr = new LiteralExpression;
-							Value* val = op_expr->evaluate();
-							lit_expr->val = val;
-
-							op_expr->left = lit_expr;
-						}
-					}
-
-					assign_statement->expression = op_expr->left;
+					assign_statement->expression = calculate_compound_op_expr(&tokens, i + 1, get_block_edge(&tokens, i + 2, SEMICOLON), &i);
 					//statements.push_back(assign_statement);
 					assign_statement->execute();
-					i = edge;
 				}
 				else
 				{
@@ -449,28 +452,7 @@ std::vector<Statement*> parse(std::vector<Token> tokens)
 			// get a condition
 			if (tokens.at(i + 3).type == OPERATOR)
 			{
-				OpExpression* op_expr = new OpExpression;
-				op_expr->left = get_expr(tokens.at(i + 2));
-				
-				int edge = get_block_edge(&tokens, i + 3, RIGHT_PAREN);
-
-				for (int j = i + 3; j < edge; j++)
-				{
-					if (tokens.at(j).type == OPERATOR)
-					{
-						op_expr->type = getOpType(tokens.at(j).lexeme);
-						op_expr->right = get_expr(tokens.at(j + 1));
-
-						LiteralExpression* lit_expr = new LiteralExpression;
-						Value* val = op_expr->evaluate();
-						lit_expr->val = val;
-
-						op_expr->left = lit_expr;
-					}
-				}
-
-				is->condition = op_expr->left;
-				i = edge;
+				is->condition = calculate_compound_op_expr(&tokens, i + 2, get_block_edge(&tokens, i + 3, SEMICOLON), &i);
 			}
 			else if (tokens.at(i + 3).type == RIGHT_PAREN)
 			{

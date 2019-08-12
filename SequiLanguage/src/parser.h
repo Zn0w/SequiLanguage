@@ -70,6 +70,16 @@ struct AssignStatement : public Statement
 	{
 		variables.insert_or_assign(name, expression->evaluate());
 	}
+
+	AssignStatement()
+	{
+	
+	}
+
+	~AssignStatement()
+	{
+		delete expression;
+	}
 };
 
 // OpExpression work only with two operators, no more for now
@@ -218,6 +228,17 @@ struct PrintStatement : public Statement
 	{
 		for (Expression* expr : expression)
 			printf("%s", expr->evaluate()->to_string().c_str());
+	}
+
+	PrintStatement()
+	{
+
+	}
+
+	~PrintStatement()
+	{
+		for (Expression* expr : expression)
+			delete expr;
 	}
 };
 
@@ -412,12 +433,14 @@ std::vector<Statement*> parse(std::vector<Token> tokens)
 					assign_statement->expression = calculate_compound_op_expr(&tokens, i + 1, get_block_edge(&tokens, i + 2, SEMICOLON), &i);
 					//statements.push_back(assign_statement);
 					assign_statement->execute();
+					delete assign_statement;
 				}
 				else
 				{
 					assign_statement->expression = get_expr(tokens.at(i + 1));
 					//statements.push_back(assign_statement);
 					assign_statement->execute();
+					delete assign_statement;
 
 					i += 1;
 				}
@@ -448,6 +471,7 @@ std::vector<Statement*> parse(std::vector<Token> tokens)
 			}
 
 			ps->execute();
+			delete ps;
 			i = edge;
 		}
 

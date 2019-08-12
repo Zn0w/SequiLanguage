@@ -32,6 +32,11 @@ struct NumValue : public Value
 	{
 		return std::to_string(value);
 	}
+
+	NumValue(double v)
+	{
+		value = v;
+	}
 };
 
 struct StrValue : public Value
@@ -46,6 +51,11 @@ struct StrValue : public Value
 	std::string to_string()
 	{
 		return value;
+	}
+
+	StrValue(std::string v)
+	{
+		value = v;
 	}
 };
 
@@ -108,103 +118,73 @@ struct OpExpression : public Expression
 		{
 			if (dynamic_cast<NumValue*>(l) != NULL)
 			{
-				NumValue* result = new NumValue;
-				result->value = l->to_number() + r->to_number();
-				return result;
+				return new NumValue(l->to_number() + r->to_number());
 			}
 			else
 			{
-				StrValue* result = new StrValue;
-				result->value = l->to_string() + r->to_string();
-				return result;
+				return new StrValue(l->to_string() + r->to_string());
 			}
 		}
 
 		case SUBTRACT:
 		{
-			NumValue* result = new NumValue;
-			result->value = l->to_number() - r->to_number();
-			return result;
+			return new NumValue(l->to_number() - r->to_number());
 		}
 
 		case MULTIPLY:
 		{
-			NumValue* result = new NumValue;
-			result->value = l->to_number() * r->to_number();
-			return result;
+			return new NumValue(l->to_number() * r->to_number());
 		}
 
 		case DIVIDE:
 		{
-			NumValue* result = new NumValue;
-			result->value = l->to_number() / r->to_number();
-			return result;
+			return new NumValue(l->to_number() / r->to_number());
 		}
 
 		case GREATER:
 		{
-			NumValue* result = new NumValue;
-			result->value = l->to_number() > r->to_number();
-			return result;
+			return new NumValue(l->to_number() > r->to_number());
 		}
 
 		case LESS:
 		{
-			NumValue* result = new NumValue;
-			result->value = l->to_number() < r->to_number();
-			return result;
+			return new NumValue(l->to_number() < r->to_number());
 		}
 
 		case GREATER_EQUAL:
 		{
-			NumValue* result = new NumValue;
-			result->value = l->to_number() >= r->to_number();
-			return result;
+			return new NumValue(l->to_number() >= r->to_number());
 		}
 
 		case LESS_EQUAL:
 		{
-			NumValue* result = new NumValue;
-			result->value = l->to_number() <= r->to_number();
-			return result;
+			return new NumValue(l->to_number() <= r->to_number());
 		}
 
 		case EQUALS:
 		{
-			NumValue* result = new NumValue;
-			
 			if (dynamic_cast<NumValue*>(l) != NULL)
-				result->value = l->to_number() == r->to_number();
+				return new NumValue(l->to_number() == r->to_number());
 			else
-				result->value = l->to_string() == r->to_string();
-
-			return result;
+				return new NumValue(l->to_string() == r->to_string());
 		}
 
 		case NOT_EQUALS:
 		{
-			NumValue* result = new NumValue;
-
 			if (dynamic_cast<NumValue*>(l) != NULL)
-				result->value = l->to_number() != r->to_number();
+				return new NumValue(l->to_number() != r->to_number());
 			else
-				result->value = l->to_string() != r->to_string();
-
-			return result;
+				return new NumValue(l->to_string() != r->to_string());
 		}
 
 		case AND:
 		{
-			NumValue* result = new NumValue;
-			result->value = l->to_number() && r->to_number();
-			return result;
+			return new NumValue(l->to_number() && r->to_number());
 		}
 
 		case OR:
 		{
-			NumValue* result = new NumValue;
-			result->value = l->to_number() || r->to_number();
-			return result;
+			return new NumValue(l->to_number() || r->to_number());
 		}
 
 		default:
@@ -262,6 +242,11 @@ struct VariableExpression : public Expression
 	{
 		return variables[id];
 	}
+
+	VariableExpression(std::string s_id)
+	{
+		id = s_id;
+	}
 };
 
 // maybe do that in the Expression base class
@@ -272,6 +257,11 @@ struct LiteralExpression : public Expression
 	Value* evaluate()
 	{
 		return val;
+	}
+
+	LiteralExpression(Value* v)
+	{
+		val = v;
 	}
 };
 
@@ -327,50 +317,23 @@ Expression* get_expr(Token token)
 	{
 	case NUMBER:
 	{
-		LiteralExpression* lit_expr = new LiteralExpression;
-		NumValue* val = new NumValue;
-		val->value = stod(token.lexeme);
-		lit_expr->val = val;
-
-		return lit_expr;
+		return new LiteralExpression(new NumValue(stod(token.lexeme)));
 	}
 	case STR:
 	{
-		LiteralExpression* lit_expr = new LiteralExpression;
-		StrValue* val = new StrValue;
-		val->value = token.lexeme;
-		lit_expr->val = val;
-
-		return lit_expr;
+		return new LiteralExpression(new StrValue(token.lexeme));
 	}
 	case TRUE:
 	{
-		LiteralExpression* lit_expr = new LiteralExpression;
-
-		NumValue* val = new NumValue;
-		val->value = 1;
-
-		lit_expr->val = val;
-
-		return lit_expr;
+		 return new LiteralExpression(new NumValue(1));
 	}
 	case FALSE:
 	{
-		LiteralExpression* lit_expr = new LiteralExpression;
-
-		NumValue* val = new NumValue;
-		val->value = 0;
-
-		lit_expr->val = val;
-
-		return lit_expr;
+		return new LiteralExpression(new NumValue(0));
 	}
 	case IDENTIFIER:
 	{
-		VariableExpression * var_expr = new VariableExpression;
-		var_expr->id = token.lexeme;
-
-		return var_expr;
+		return new VariableExpression(token.lexeme);
 	}
 	default:
 		error("");
@@ -400,11 +363,7 @@ Expression* calculate_compound_op_expr(std::vector<Token>* tokens, int start, in
 			op_expr->type = getOpType(tokens->at(j).lexeme);
 			op_expr->right = get_expr(tokens->at(j + 1));
 
-			LiteralExpression* lit_expr = new LiteralExpression;
-			Value* val = op_expr->evaluate();
-			lit_expr->val = val;
-
-			op_expr->left = lit_expr;
+			op_expr->left = new LiteralExpression(op_expr->evaluate());
 		}
 	}
 
@@ -457,14 +416,7 @@ std::vector<Statement*> parse(std::vector<Token> tokens)
 			{
 				if (tokens.at(j).type == NEWLINE)
 				{
-					LiteralExpression* lit_expr = new LiteralExpression;
-
-					StrValue* val = new StrValue;
-					val->value = "\n";
-
-					lit_expr->val = val;
-
-					ps->expression.push_back(lit_expr);
+					ps->expression.push_back(new LiteralExpression(new StrValue("\n")));
 				}
 				else
 					ps->expression.push_back(get_expr(tokens.at(j)));

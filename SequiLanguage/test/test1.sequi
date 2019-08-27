@@ -1,5 +1,5 @@
 a = 15 length = 30.4
-a = 5 + 5 * 2 + 3 ;
+a = a + 5
 length = a + 6 ;
 length = 2 + a ;
 print "Hello World! " a newline ;

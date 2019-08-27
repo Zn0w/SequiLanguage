@@ -71,6 +71,11 @@ struct Expression
 	virtual Value* evaluate() = 0;
 };
 
+struct Block
+{
+	std::map<std::string, Value*> variables;
+};
+
 struct AssignStatement : public Statement
 {
 	std::string name;
@@ -97,7 +102,7 @@ struct OpExpression : public Expression
 {
 	enum OpType
 	{
-		ADD, SUBTRACT, MULTIPLY, DIVIDE, GREATER, LESS, GREATER_EQUAL, LESS_EQUAL, EQUALS, NOT_EQUALS, AND, OR, NOT
+		ADD, SUBTRACT, MULTIPLY, DIVIDE, GREATER, LESS, GREATER_EQUAL, LESS_EQUAL, EQUALS, NOT_EQUALS, AND, OR, NOT, NONE // none is used when dealing with the compound op expressions
 	};
 	
 	Expression* left;
@@ -194,11 +199,6 @@ struct OpExpression : public Expression
 	}
 };
 
-struct Scope
-{
-	std::vector<Statement> statements;
-	std::map<std::string, Value*> local_variables;
-};
 
 struct PrintStatement : public Statement
 {
@@ -225,8 +225,8 @@ struct PrintStatement : public Statement
 struct IfStatement : public Statement
 {
 	Expression* condition;
-	Expression* then;
-	Expression* or_else;
+	Block then;
+	Block or_else;
 
 	void execute()
 	{
@@ -351,27 +351,6 @@ int get_block_edge(std::vector<Token>* tokens, int start, TokenType terminate_to
 	return 0;
 }
 
-Expression* calculate_compound_op_expr(std::vector<Token>* tokens, int start, int edge, int *parse_iterator)
-{
-	OpExpression* op_expr = new OpExpression;
-	op_expr->left = get_expr(tokens->at(start));
-
-	for (int j = start + 1; j < edge; j++)
-	{
-		if (tokens->at(j).type == OPERATOR)
-		{
-			op_expr->type = getOpType(tokens->at(j).lexeme);
-			op_expr->right = get_expr(tokens->at(j + 1));
-
-			op_expr->left = new LiteralExpression(op_expr->evaluate());
-		}
-	}
-
-	*parse_iterator = edge;
-
-	return op_expr->left;
-}
-
 std::vector<Statement*> parse(std::vector<Token> tokens)
 {
 	std::vector<Statement*> statements;
@@ -389,17 +368,20 @@ std::vector<Statement*> parse(std::vector<Token> tokens)
 
 				if (i + 2 < tokens.size() && tokens.at(i + 2).type == OPERATOR)
 				{
-					assign_statement->expression = calculate_compound_op_expr(&tokens, i + 1, get_block_edge(&tokens, i + 2, SEMICOLON), &i);
-					//statements.push_back(assign_statement);
-					assign_statement->execute();
-					delete assign_statement;
+					OpExpression* op_expr = new OpExpression;
+					op_expr->type = getOpType(tokens.at(i + 2).lexeme);
+					op_expr->left = get_expr(tokens.at(i + 1));
+					op_expr->right = get_expr(tokens.at(i + 3));
+
+					assign_statement->expression = op_expr;
+					statements.push_back(assign_statement);
+
+					i += 3;
 				}
 				else
 				{
 					assign_statement->expression = get_expr(tokens.at(i + 1));
-					//statements.push_back(assign_statement);
-					assign_statement->execute();
-					delete assign_statement;
+					statements.push_back(assign_statement);
 
 					i += 1;
 				}
@@ -422,8 +404,7 @@ std::vector<Statement*> parse(std::vector<Token> tokens)
 					ps->expression.push_back(get_expr(tokens.at(j)));
 			}
 
-			ps->execute();
-			delete ps;
+			statements.push_back(ps);
 			i = edge;
 		}
 
@@ -434,7 +415,7 @@ std::vector<Statement*> parse(std::vector<Token> tokens)
 			// get a condition
 			if (tokens.at(i + 3).type == OPERATOR)
 			{
-				is->condition = calculate_compound_op_expr(&tokens, i + 2, get_block_edge(&tokens, i + 3, SEMICOLON), &i);
+				//is->condition = calculate_compound_op_expr(&tokens, i + 2, get_block_edge(&tokens, i + 3, SEMICOLON), &i);
 			}
 			else if (tokens.at(i + 3).type == RIGHT_PAREN)
 			{
@@ -449,7 +430,7 @@ std::vector<Statement*> parse(std::vector<Token> tokens)
 			}
 
 			// get a then expression
-			if (tokens.at(i + 1).type == LEFT_BRACE)
+			if (tokens.at(i + 1).type == LEFT_BRACE)	// if contains a single statement (for testing)
 			{
 
 			}

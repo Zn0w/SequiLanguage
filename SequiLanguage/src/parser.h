@@ -60,6 +60,7 @@ struct StrValue : public Value
 };
 
 std::map<std::string, Value*> variables;
+std::map<std::string, Function> functions;
 
 struct Statement
 {
@@ -69,11 +70,6 @@ struct Statement
 struct Expression
 {
 	virtual Value* evaluate() = 0;
-};
-
-struct Block
-{
-	std::map<std::string, Value*> variables;
 };
 
 struct AssignStatement : public Statement
@@ -225,12 +221,26 @@ struct PrintStatement : public Statement
 struct IfStatement : public Statement
 {
 	Expression* condition;
-	Block then;
-	Block or_else;
+	Function then;
+	Function or_else;
 
 	void execute()
 	{
 		
+	}
+};
+
+struct Function
+{
+	std::map<std::string, Value*> variables;
+	std::vector<Statement> statements;
+};
+
+struct FunctionCallStatement : public Statement
+{
+	void execute()
+	{
+
 	}
 };
 
@@ -432,7 +442,8 @@ std::vector<Statement*> parse(std::vector<Token> tokens)
 			// get a then expression
 			if (tokens.at(i + 1).type == LEFT_BRACE)	// if contains a single statement (for testing)
 			{
-
+				// Extract a segment of token list, which is withing the {} , create struct Function instance and call func.statements = parse(segment)
+				// need to find a solution to the local variables problem
 			}
 		}
 

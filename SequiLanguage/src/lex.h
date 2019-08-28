@@ -85,7 +85,7 @@ std::vector<Token> lex(std::string source)
 	std::string word = "";
 	for (int i = 0; i < source.size(); i++)
 	{
-		if (source.at(i) == ' ' || source.at(i) == '\n' || source.at(i) == EOF)
+		if (source.at(i) == ' ' || source.at(i) == '\n' || source.at(i) == EOF || source.at(i) == '\t')
 		{
 			if (word != "")
 				unprocessed.push_back(word);

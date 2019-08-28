@@ -60,7 +60,6 @@ struct StrValue : public Value
 };
 
 std::map<std::string, Value*> variables;
-std::map<std::string, Function> functions;
 
 struct Statement
 {
@@ -218,6 +217,31 @@ struct PrintStatement : public Statement
 	}
 };
 
+struct Function
+{
+	std::vector<Statement*> statements;
+	std::vector<std::string> variable_names;	// TODO: implement in the future
+
+	void execute()
+	{
+		for (Statement* statement : statements)
+			statement->execute();
+	}
+
+	// clear out the local function's variables
+	void dispose()
+	{
+		std::map<std::string, Value*>::iterator it;
+		for (std::string var_name : variable_names)
+		{
+			it = variables.find(var_name);
+			variables.erase(it);
+		}
+	}
+};
+
+std::map<std::string, Function> functions;
+
 struct IfStatement : public Statement
 {
 	Expression* condition;
@@ -226,14 +250,12 @@ struct IfStatement : public Statement
 
 	void execute()
 	{
-		
+		NumValue* value = (NumValue*) condition->evaluate();
+		if (value->to_number())
+			then.execute();
+		else
+			or_else.execute();
 	}
-};
-
-struct Function
-{
-	std::map<std::string, Value*> variables;
-	std::vector<Statement> statements;
 };
 
 struct FunctionCallStatement : public Statement
@@ -423,15 +445,19 @@ std::vector<Statement*> parse(std::vector<Token> tokens)
 			IfStatement* is = new IfStatement;
 
 			// get a condition
-			if (tokens.at(i + 3).type == OPERATOR)
+			if (tokens.at(i + 3).type == OPERATOR && tokens.at(i + 5).type == RIGHT_PAREN)
 			{
-				//is->condition = calculate_compound_op_expr(&tokens, i + 2, get_block_edge(&tokens, i + 3, SEMICOLON), &i);
+				OpExpression* op_expr = new OpExpression;
+				op_expr->type = getOpType(tokens.at(i + 3).lexeme);
+				op_expr->left = get_expr(tokens.at(i + 2));
+				op_expr->right = get_expr(tokens.at(i + 4));
+				i += 5;
 			}
 			else if (tokens.at(i + 3).type == RIGHT_PAREN)
 			{
 
-				is->condition = get_expr(tokens.at(i + 3));
-				i += 3;
+				is->condition = get_expr(tokens.at(i + 2));
+				i += 2;
 			}
 			else
 			{
@@ -444,7 +470,52 @@ std::vector<Statement*> parse(std::vector<Token> tokens)
 			{
 				// Extract a segment of token list, which is withing the {} , create struct Function instance and call func.statements = parse(segment)
 				// need to find a solution to the local variables problem
+
+				int edge = get_block_edge(&tokens, i + 2, RIGHT_BRACE);
+
+				std::vector<Token> segment;
+				segment.reserve(edge - (i + 2));
+				for (int j = i + 2; j < edge; j++)
+					segment.push_back(tokens.at(j));
+
+				Function function;
+				function.statements = parse(segment);
+				is->then = function;
+
+				i = edge;
 			}
+			else
+			{
+				error("");
+				continue;
+			}
+
+			// get an else expression
+			if (tokens.at(i + 1).type == ELSE && tokens.at(i + 2).type == LEFT_BRACE)	// if contains a single statement (for testing)
+			{
+				// Extract a segment of token list, which is withing the {} , create struct Function instance and call func.statements = parse(segment)
+				// need to find a solution to the local variables problem
+
+				int edge = get_block_edge(&tokens, i + 3, RIGHT_BRACE);
+
+				std::vector<Token> segment;
+				segment.reserve(edge - (i + 3));
+				for (int j = i + 3; j < edge; j++)
+					segment.push_back(tokens.at(j));
+
+				Function function;
+				function.statements = parse(segment);
+				is->then = function;
+
+				i = edge;
+			}
+			else
+			{
+				Function function = {};
+				is->or_else = function;
+			}
+
+			statements.push_back(is);
 		}
 
 		i++;

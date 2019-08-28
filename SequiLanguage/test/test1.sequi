@@ -9,6 +9,12 @@ print true "  " false newline ;
 
 sunny = false
 umbrella = false
-dry = sunny or umbrella
 
-print "Are you dry? " dry ;
+if ( sunny or umbrella )
+{
+	print "You are going to be dry" ;
+}
+else
+{
+	print "You are going to be wet" ;
+}

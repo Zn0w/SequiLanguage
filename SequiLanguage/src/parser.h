@@ -250,11 +250,18 @@ struct IfStatement : public Statement
 
 	void execute()
 	{
-		NumValue* value = (NumValue*) condition->evaluate();
-		if (value->to_number())
-			then.execute();
+		Value* value = condition->evaluate();
+
+		if (dynamic_cast<NumValue*>(value) != NULL)
+		{
+			if (value->to_number())
+				then.execute();
+			else
+				or_else.execute();
+		}
 		else
-			or_else.execute();
+			;//print error
+
 	}
 };
 
@@ -451,6 +458,9 @@ std::vector<Statement*> parse(std::vector<Token> tokens)
 				op_expr->type = getOpType(tokens.at(i + 3).lexeme);
 				op_expr->left = get_expr(tokens.at(i + 2));
 				op_expr->right = get_expr(tokens.at(i + 4));
+
+				is->condition = op_expr;
+
 				i += 5;
 			}
 			else if (tokens.at(i + 3).type == RIGHT_PAREN)
@@ -490,6 +500,14 @@ std::vector<Statement*> parse(std::vector<Token> tokens)
 				continue;
 			}
 
+			// check if the end of the program
+			if (i + 2 >= tokens.size())
+			{
+				statements.push_back(is);
+				i++;
+				continue;
+			}
+
 			// get an else expression
 			if (tokens.at(i + 1).type == ELSE && tokens.at(i + 2).type == LEFT_BRACE)	// if contains a single statement (for testing)
 			{
@@ -505,7 +523,7 @@ std::vector<Statement*> parse(std::vector<Token> tokens)
 
 				Function function;
 				function.statements = parse(segment);
-				is->then = function;
+				is->or_else = function;
 
 				i = edge;
 			}

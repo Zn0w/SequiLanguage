@@ -217,10 +217,21 @@ struct PrintStatement : public Statement
 	}
 };
 
-struct Function
+struct Block
 {
+	std::string name;
 	std::vector<Statement*> statements;
 	std::vector<std::string> variable_names;	// TODO: implement in the future
+
+	Block()
+	{
+		
+	}
+
+	Block(std::string s_name)
+	{
+		name = s_name;
+	}
 
 	void execute()
 	{
@@ -240,13 +251,11 @@ struct Function
 	}
 };
 
-std::map<std::string, Function> functions;
-
 struct IfStatement : public Statement
 {
 	Expression* condition;
-	Function then;
-	Function or_else;
+	Block then;
+	Block or_else;
 
 	void execute()
 	{
@@ -261,15 +270,30 @@ struct IfStatement : public Statement
 		}
 		else
 			;//print error
-
 	}
 };
 
-struct FunctionCallStatement : public Statement
+struct WhileStatement : public Statement
 {
+	Expression* condition;
+	Block step;
+
 	void execute()
 	{
+		while (true)
+		{
+			Value* value = condition->evaluate();
 
+			if (dynamic_cast<NumValue*>(value) != NULL)
+			{
+				if (value->to_number())
+					step.execute();
+				else
+					break;
+			}
+			else
+				;//print error
+		}
 	}
 };
 
@@ -304,15 +328,6 @@ struct LiteralExpression : public Expression
 	}
 };
 
-
-bool isDecimal(std::string number)
-{
-	for (int i = 0; i < number.length(); i++)
-		if (number.at(i) == '.')
-			return true;
-	
-	return false;
-}
 
 OpExpression::OpType getOpType(std::string token)
 {
@@ -447,6 +462,9 @@ std::vector<Statement*> parse(std::vector<Token> tokens)
 			i = edge;
 		}
 
+		// FROM THIS POINT ON I'VE BASICALLY GIVEN UP ON ANY DESIGN PATTERS AND CLEAN CODE THINGIES AS I WAS EAGER TO FINISH THIS HORRIBLY-DESIGNED PARODY OF
+		// A LANGUAGE. THE NEXT ONE WILL (HOPEFULLY) BE BETTER :)
+
 		else if (tokens.at(i).type == IF && tokens.at(i + 1).type == LEFT_PAREN)
 		{
 			IfStatement* is = new IfStatement;
@@ -476,7 +494,7 @@ std::vector<Statement*> parse(std::vector<Token> tokens)
 			}
 
 			// get a then expression
-			if (tokens.at(i + 1).type == LEFT_BRACE)	// if contains a single statement (for testing)
+			if (tokens.at(i + 1).type == LEFT_BRACE)
 			{
 				// Extract a segment of token list, which is withing the {} , create struct Function instance and call func.statements = parse(segment)
 				// need to find a solution to the local variables problem
@@ -488,9 +506,9 @@ std::vector<Statement*> parse(std::vector<Token> tokens)
 				for (int j = i + 2; j < edge; j++)
 					segment.push_back(tokens.at(j));
 
-				Function function;
-				function.statements = parse(segment);
-				is->then = function;
+				Block block;
+				block.statements = parse(segment);
+				is->then = block;
 
 				i = edge;
 			}
@@ -521,19 +539,72 @@ std::vector<Statement*> parse(std::vector<Token> tokens)
 				for (int j = i + 3; j < edge; j++)
 					segment.push_back(tokens.at(j));
 
-				Function function;
-				function.statements = parse(segment);
-				is->or_else = function;
+				Block block;
+				block.statements = parse(segment);
+				is->or_else = block;
 
 				i = edge;
 			}
 			else
 			{
-				Function function = {};
-				is->or_else = function;
+				Block block = {};
+				is->or_else = block;
 			}
 
 			statements.push_back(is);
+		}
+
+		else if (tokens.at(i).type == WHILE && tokens.at(i + 1).type == IDENTIFIER && tokens.at(i + 2).type == LEFT_BRACE)
+		{
+			WhileStatement* ws = new WhileStatement;
+			
+			// get a condition
+			if (tokens.at(i + 3).type == OPERATOR && tokens.at(i + 5).type == RIGHT_PAREN)
+			{
+				OpExpression* op_expr = new OpExpression;
+				op_expr->type = getOpType(tokens.at(i + 3).lexeme);
+				op_expr->left = get_expr(tokens.at(i + 2));
+				op_expr->right = get_expr(tokens.at(i + 4));
+
+				ws->condition = op_expr;
+
+				i += 5;
+			}
+			else if (tokens.at(i + 3).type == RIGHT_PAREN)
+			{
+
+				ws->condition = get_expr(tokens.at(i + 2));
+				i += 2;
+			}
+			else
+			{
+				error("");
+				continue;
+			}
+
+			// get a step block
+			if (tokens.at(i + 1).type == LEFT_BRACE)
+			{
+				int edge = get_block_edge(&tokens, i + 2, RIGHT_BRACE);
+
+				std::vector<Token> segment;
+				segment.reserve(edge - (i + 2));
+				for (int j = i + 2; j < edge; j++)
+					segment.push_back(tokens.at(j));
+
+				Block block;
+				block.statements = parse(segment);
+				ws->step = block;
+
+				i = edge;
+			}
+			else
+			{
+				error("");
+				continue;
+			}
+
+			statements.push_back(ws);
 		}
 
 		i++;

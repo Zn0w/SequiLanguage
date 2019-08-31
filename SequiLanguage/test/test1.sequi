@@ -8,7 +8,7 @@ print result newline ;
 print true "  " false newline ;
 
 sunny = false
-umbrella = false
+umbrella = true
 
 if ( sunny or umbrella )
 {
@@ -17,4 +17,9 @@ if ( sunny or umbrella )
 else
 {
 	print "You are going to be wet" ;
+}
+
+while ( true )
+{
+	print "Hello World!" newline ;
 }

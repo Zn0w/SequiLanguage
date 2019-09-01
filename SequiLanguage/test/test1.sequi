@@ -18,8 +18,3 @@ else
 {
 	print "You are going to be wet" ;
 }
-
-while ( true )
-{
-	print "Hello World!" newline ;
-}

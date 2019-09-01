@@ -273,30 +273,6 @@ struct IfStatement : public Statement
 	}
 };
 
-struct WhileStatement : public Statement
-{
-	Expression* condition;
-	Block step;
-
-	void execute()
-	{
-		while (true)
-		{
-			Value* value = condition->evaluate();
-
-			if (dynamic_cast<NumValue*>(value) != NULL)
-			{
-				if (value->to_number())
-					step.execute();
-				else
-					break;
-			}
-			else
-				;//print error
-		}
-	}
-};
-
 struct VariableExpression : public Expression
 {
 	std::string id;
@@ -552,59 +528,6 @@ std::vector<Statement*> parse(std::vector<Token> tokens)
 			}
 
 			statements.push_back(is);
-		}
-
-		else if (tokens.at(i).type == WHILE && tokens.at(i + 1).type == IDENTIFIER && tokens.at(i + 2).type == LEFT_BRACE)
-		{
-			WhileStatement* ws = new WhileStatement;
-			
-			// get a condition
-			if (tokens.at(i + 3).type == OPERATOR && tokens.at(i + 5).type == RIGHT_PAREN)
-			{
-				OpExpression* op_expr = new OpExpression;
-				op_expr->type = getOpType(tokens.at(i + 3).lexeme);
-				op_expr->left = get_expr(tokens.at(i + 2));
-				op_expr->right = get_expr(tokens.at(i + 4));
-
-				ws->condition = op_expr;
-
-				i += 5;
-			}
-			else if (tokens.at(i + 3).type == RIGHT_PAREN)
-			{
-
-				ws->condition = get_expr(tokens.at(i + 2));
-				i += 2;
-			}
-			else
-			{
-				error("");
-				continue;
-			}
-
-			// get a step block
-			if (tokens.at(i + 1).type == LEFT_BRACE)
-			{
-				int edge = get_block_edge(&tokens, i + 2, RIGHT_BRACE);
-
-				std::vector<Token> segment;
-				segment.reserve(edge - (i + 2));
-				for (int j = i + 2; j < edge; j++)
-					segment.push_back(tokens.at(j));
-
-				Block block;
-				block.statements = parse(segment);
-				ws->step = block;
-
-				i = edge;
-			}
-			else
-			{
-				error("");
-				continue;
-			}
-
-			statements.push_back(ws);
 		}
 
 		i++;

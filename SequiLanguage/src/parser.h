@@ -60,6 +60,8 @@ struct StrValue : public Value
 };
 
 std::map<std::string, Value*> variables;
+std::map<std::string, int> labels;
+int current_statement = 0;
 
 struct Statement
 {
@@ -270,6 +272,22 @@ struct IfStatement : public Statement
 		}
 		else
 			;//print error
+	}
+};
+
+struct GotoStatement : public Statement
+{
+	std::string label;
+
+	GotoStatement(std::string lbl)
+	{
+		label = lbl;
+	}
+
+	void execute()
+	{
+		if (labels.count(label))	// if label exists
+			current_statement = labels[label];
 	}
 };
 
@@ -528,6 +546,18 @@ std::vector<Statement*> parse(std::vector<Token> tokens)
 			}
 
 			statements.push_back(is);
+		}
+
+		else if (tokens.at(i).type == LABEL && tokens.at(i + 1).type == IDENTIFIER)
+		{
+			labels.insert_or_assign(tokens.at(i + 1).lexeme, statements.size() - 1);	// - 1 because the for loop increments the current_statement
+			i += 1;
+		}
+
+		else if (tokens.at(i).type == GOTO && tokens.at(i + 1).type == IDENTIFIER)
+		{
+			statements.push_back(new GotoStatement(tokens.at(i + 1).lexeme));
+			i += 1;
 		}
 
 		i++;

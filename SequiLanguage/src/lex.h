@@ -21,7 +21,7 @@ enum TokenType
 
 	IDENTIFIER, STR, NUMBER,
 
-	NEWLINE, FUNC, IF, ELSE, ELIF, AND, OR, NOT, PRINT, TRUE, FALSE, RETURN, WHILE,
+	NEWLINE, IF, ELSE, AND, OR, NOT, PRINT, TRUE, FALSE, LABEL, GOTO,
 
 	END_OF_FILE,
 	UNDEF // ??
@@ -184,24 +184,20 @@ std::vector<Token> lex(std::string source)
 			// if keyword
 			else if (token == "newline")
 				type = NEWLINE;
-			else if (token == "while")
-				type = WHILE;
-			else if (token == "func")
-				type = FUNC;
+			else if (token == "label")
+				type = LABEL;
+			else if (token == "goto")
+				type = GOTO;
 			else if (token == "if")
 				type = IF;
 			else if (token == "else")
 				type = ELSE;
-			else if (token == "elif")
-				type = ELIF;
 			else if (token == "print")
 				type = PRINT;
 			else if (token == "true")
 				type = TRUE;
 			else if (token == "false")
 				type = FALSE;
-			else if (token == "return")
-				type = RETURN;
 
 			// if literal
 			else if (isNumber(token))

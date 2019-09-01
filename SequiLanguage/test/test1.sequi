@@ -12,9 +12,22 @@ umbrella = true
 
 if ( sunny or umbrella )
 {
-	print "You are going to be dry" ;
+	print "You are going to be dry" newline ;
 }
 else
 {
-	print "You are going to be wet" ;
+	print "You are going to be wet" newline ;
+}
+
+i = 0
+label start_counter_loop
+i = i + 1
+print i newline ;
+if ( i < 1000 )
+{
+	goto start_counter_loop
+}
+else
+{
+	print "The counter has stopped, the iterator reached 1000" newline ;
 }

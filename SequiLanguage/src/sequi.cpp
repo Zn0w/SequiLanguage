@@ -32,8 +32,8 @@ int main(int argc, char** argv)
 	std::vector<Statement*> statements = parse(tokens);
 
 	// execute program
-	for (Statement* statement : statements)
-		statement->execute();
+	for (current_statement = 0; current_statement < statements.size(); current_statement++)
+		statements.at(current_statement)->execute();
 
 	return 0;
 }
